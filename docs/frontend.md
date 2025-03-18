@@ -4,6 +4,7 @@
 Angular es un marco web que permite a los desarrolladores crear aplicaciones rápidas y confiables.
 Mantenido por un equipo dedicado de Google, Angular proporciona un amplio conjunto de herramientas, API y para simplificar y agilizar el flujo de trabajo de desarrollo. Angular te da una plataforma sólida en la que crear aplicaciones rápidas y fiables que se escalan tanto con el tamaño de tu equipo y el tamaño de tu base de código.
 
+
 Mentorium es una aplicación desarrollada con **Angular 19.1.7** y **Tailwind 4.0.14**. Este documento describe la estructura del proyecto, sus dependencias y cómo ejecutarlo.
 
 
@@ -39,7 +40,6 @@ Para generar los componentes dentro de la carpeta `components`, ejecuta los sigu
 ```bash
 ng generate component components/login
 ng generate component components/register
-
 ```
 Estos comandos crearán automáticamente las carpetas y archivos necesarios para cada componente.
 
@@ -52,7 +52,6 @@ ng serve
 ## Framework
 - **Angular 19.1.7**: Framework principal para la creación de la aplicación.
 - **Tailwind 4.0.14**: Biblioteca de estilos para mejorar la interfaz.
-
 
 ## IDE Recomendado
 - **Visual Studio Code**: Editor recomendado con extensiones para Angular y TypeScript.
@@ -99,8 +98,5 @@ mentorium/
 │   ├── assets/  # Recursos estáticos
 │   ├── environments/  # Configuración de entornos
 │   ├── styles.scss  # Estilos globales
-<<<<<<< HEAD
+
 ```
-=======
-```
->>>>>>> feature/MEN-9-realizar-el-backend-md
