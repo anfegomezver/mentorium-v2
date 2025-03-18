@@ -7,7 +7,6 @@ Mantenido por un equipo dedicado de Google, Angular proporciona un amplio conjun
 Mentorium es una aplicación desarrollada con **Angular 19.1.7** y **Tailwind 4.0.14**. Este documento describe la estructura del proyecto, sus dependencias y cómo ejecutarlo.
 
 
-
 ## Instalacion
 
 Instalar mi Mentorium con npm
@@ -39,7 +38,14 @@ npm install
 Para generar los componentes dentro de la carpeta `components`, ejecuta los siguientes comandos:
 ```bash
 ng generate component components/login
+<<<<<<< HEAD
 ng generate component components/register
+=======
+ng generate component components/admin
+ng generate component components/dashboard
+ng generate component components/product/add
+ng generate component components/product/list
+>>>>>>> feature/MEN-9-realizar-el-backend-md
 ```
 Estos comandos crearán automáticamente las carpetas y archivos necesarios para cada componente.
 
@@ -51,7 +57,11 @@ ng serve
 
 ## Framework
 - **Angular 19.1.7**: Framework principal para la creación de la aplicación.
+<<<<<<< HEAD
 - **Tailwind 4.0.14**: Biblioteca de estilos para mejorar la interfaz.
+=======
+- **tailwind 4.0.14**: Biblioteca de estilos para mejorar la interfaz.
+>>>>>>> feature/MEN-9-realizar-el-backend-md
 
 ## IDE Recomendado
 - **Visual Studio Code**: Editor recomendado con extensiones para Angular y TypeScript.
@@ -98,4 +108,8 @@ mentorium/
 │   ├── assets/  # Recursos estáticos
 │   ├── environments/  # Configuración de entornos
 │   ├── styles.scss  # Estilos globales
+<<<<<<< HEAD
 ```
+=======
+```
+>>>>>>> feature/MEN-9-realizar-el-backend-md
