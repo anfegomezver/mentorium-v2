@@ -1,0 +1,45 @@
+<div class="flex justify-center items-center h-screen">
+    <div class="bg-white w-[500px] h-auto p-[30px] rounded-3xl shadow-lg">
+        <div class="w-full  h-auto text-center mb-[15px] flex flex-col items-center">
+            <h1 class="text-[45px] font-semibold">Registro</h1>
+            <p class="text-[12px] -m-[5px] text-neutral-500 mb-5">Registrate y forma parte de la familia Mentorium</p>
+            <app-google-button (onClick)="submitWithGoogle()"/>
+        </div>
+        <form class="flex flex-col" [formGroup]="form" (ngSubmit)="submit()">
+            <!-- <input class="mb-[18px] border-b-[1px] border-[#107acc] px-[5px] py-[2px] focus:outline-none" type="text"
+                placeholder="Nombre completo">
+            <input class="mb-[18px] border-b-[1px] border-[#107acc] px-[5px] py-[2px] focus:outline-none" type="text"
+                placeholder="Usuario"> -->
+            <input class="mt-[18px] border-[1px] border-[#b1c4d3] px-[15px] py-[12px] focus:outline-none rounded-xl"
+                type="text" placeholder="Correo electronico" name="email" formControlName="email">
+
+            @if (isRequired('email')) {
+
+            <small class="text-red-500">Este campo es requerido</small>
+            }
+            @if (hasEmailError()) {
+
+            <small class="text-red-500">El correo debe ser valido </small>
+            }
+            <input class="mt-[18px] border-[1px] border-[#b1c4d3] px-[15px] py-[12px] focus:outline-none rounded-xl"
+                type="password" placeholder="Contraseña" name="password" formControlName="password">
+            @if (isRequired('password')) {
+
+            <small class="text-red-500">Este campo es requerido</small>
+            }
+            <!-- <input class="mb-[18px] border-b-[1px] border-[#107acc] px-[5px] py-[2px] focus:outline-none" type="password"
+                placeholder="Repete la contraseña"> -->
+            <!-- <div class="flex items-center px-[5px] mt-[20px] mb-[25px]">
+                <input type="checkbox">
+                <label class="ml-[10px] text-[13px]" for="">Acepta Terminos y Licencias</label>
+            </div> -->
+            <button
+                class="bg-[#107acc] h-[50px] text-white text-[20px] font-semibold rounded-2xl w-[200px] m-auto hover:bg-[hsl(206,94%,50%)] border-[2px] hover:shadow-lg cursor-pointer transition-colors duration-300 border-none mt-5">
+                Registrar
+            </button>
+            <span class="mt-7">¿Ya tienes cuenta?
+                <a routerLink="/auth/login" class="underline text-blue-600">Inicia sesión.</a></span>
+        </form>
+
+    </div>
+</div>
