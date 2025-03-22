@@ -1,0 +1,39 @@
+<div class="flex justify-center items-center h-screen">
+  <div class="bg-white w-[500px] h-auto p-[30px] rounded-3xl shadow-lg">
+    <div class="w-full h-auto mb-[15px] flex flex-col items-center">
+      <h1 class="text-[45px] font-semibold">¡Inicia sesión!</h1>
+      <p class="text-[12px] -m-[5px] text-neutral-500 mb-5">
+        Te damos la bienvenida de nuevo a Mentorium
+      </p>
+      <app-google-button (onClick)="submitWithGoogle()"/>
+    </div>
+    <form class="flex flex-col" [formGroup]="form" (ngSubmit)="submit()">
+      <input class="mt-[18px] border-[1px] border-[#b1c4d3] px-[15px] py-[12px] focus:outline-none rounded-xl"
+        type="text" placeholder="Correo electronico" name="email" formControlName="email">
+
+      @if (isRequired('email')) {
+
+      <small class="text-red-500">Este campo es requerido</small>
+      }
+      @if (hasEmailError()) {
+
+      <small class="text-red-500">El correo debe ser valido </small>
+      }
+      <input class="mt-[18px] border-[1px] border-[#b1c4d3] px-[15px] py-[12px] focus:outline-none rounded-xl"
+        type="password" placeholder="Contraseña" name="password" formControlName="password">
+      @if (isRequired('password')) {
+
+      <small class="text-red-500">Este campo es requerido</small>
+      }
+      <a routerLink="/auth/login" class="text-blue-600 self-start">¿Olvidates tu contraseña?</a>
+
+      <button
+        class="bg-[#107acc] h-[50px] text-white text-[20px] font-semibold rounded-2xl w-[200px] m-auto hover:bg-[hsl(206,94%,50%)] border-[2px] hover:shadow-lg cursor-pointer transition-colors duration-300 border-none mt-5">
+        Iniciar sesión
+      </button>
+
+      <span class="mt-7">¿Aun no tienes cuenta?
+        <a routerLink="/auth/register" class="underline text-blue-600">Registrate ahora.</a></span>
+    </form>
+  </div>
+</div>
