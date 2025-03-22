@@ -8,7 +8,7 @@ import {
 import { AuthService } from '../../data-access/auth.service';
 import { hasEmailError, isRequired } from '../../utils/validators';
 import { toast } from 'ngx-sonner';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { GoogleButtonComponent } from '../../ui/google-button/google-button.component';
 
 interface FormLogin {
@@ -24,6 +24,7 @@ interface FormLogin {
 export default class LoginComponent {
   private _formBuilder = inject(FormBuilder);
   private _authService = inject(AuthService);
+  private _router = inject(Router);
 
   isRequired(field: 'email' | 'password') {
     return isRequired(field, this.form);
@@ -55,6 +56,7 @@ export default class LoginComponent {
         await this._authService.login({ email, password });
 
         toast.success('Bienvenido');
+        this._router.navigateByUrl('/dashboard');
       } catch (error) {
         toast.error('Error al logearse');
       }
@@ -65,6 +67,7 @@ export default class LoginComponent {
     try {
       await this._authService.loginGoogle();
       toast.success('Bienvenido');
+      this._router.navigateByUrl('/dashboard');
     } catch (error) {
       toast.error('Error al logearse');
     }

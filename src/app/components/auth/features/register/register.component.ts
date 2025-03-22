@@ -8,10 +8,10 @@ import {
 import { hasEmailError, isRequired } from '../../utils/validators';
 import { AuthService } from '../../data-access/auth.service';
 import { toast } from 'ngx-sonner';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { GoogleButtonComponent } from '../../ui/google-button/google-button.component';
 
-interface FormRegister{
+interface FormRegister {
   email: FormControl<string | null>;
   password: FormControl<string | null>;
 }
@@ -19,11 +19,12 @@ interface FormRegister{
 @Component({
   selector: 'app-register',
   imports: [ReactiveFormsModule, RouterLink, GoogleButtonComponent],
-  templateUrl: './register.component.html'
+  templateUrl: './register.component.html',
 })
 export default class RegisterComponent {
   private _formBuilder = inject(FormBuilder);
   private _authService = inject(AuthService);
+  private _router = inject(Router);
 
   isRequired(field: 'email' | 'password') {
     return isRequired(field, this.form);
@@ -43,33 +44,32 @@ export default class RegisterComponent {
 
   async submit() {
     if (this.form.valid) {
-      const {email, password} = this.form.value;
+      const { email, password } = this.form.value;
 
       if (!email || !password) {
         return;
       }
-      try{
+      try {
         console.log('Email:', email);
-      console
-        .log('Password:', password);
+        console.log('Password:', password);
 
-      await this._authService.register({ email, password });
+        await this._authService.register({ email, password });
 
-toast.success('Usuario creado correctamente');
-
-      }catch(error){
+        toast.success('Usuario creado correctamente');
+        this._router.navigateByUrl('/dashboard');
+      } catch (error) {
         toast.error('Error al crear el usuario');
       }
-      
+    }
   }
-}
 
-async submitWithGoogle() {
-  try {
-    await this._authService.loginGoogle();
-    toast.success('Bienvenido');
-  } catch (error) {
-    toast.error('Error al logearse');
+  async submitWithGoogle() {
+    try {
+      await this._authService.loginGoogle();
+      toast.success('Bienvenido');
+      this._router.navigateByUrl('/dashboard');
+    } catch (error) {
+      toast.error('Error al logearse');
+    }
   }
-}
 }
