@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { privateGuard, publicGuard } from './components/core/auth.guard';
 
 
+
 export const routes: Routes = [
     {
         canActivateChild: [publicGuard()],
@@ -11,6 +12,7 @@ export const routes: Routes = [
     {
         canActivateChild: [privateGuard()],
         path: 'dashboard',
+        loadComponent: () => import('./components/shared/ui/layout/layout.component'),
         loadChildren: () => import('./components/dashboard/features/dashboard.routes'),
     },
     {
