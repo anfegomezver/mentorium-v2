@@ -9,22 +9,32 @@
     </div>
     <form class="flex flex-col" [formGroup]="form" (ngSubmit)="submit()">
       <input class="mt-[18px] border-[1px] border-[#b1c4d3] px-[15px] py-[12px] focus:outline-none rounded-xl"
+      [ngClass]="{ 'border-red-500': isRequired('email') || hasEmailError(), 'border-[#b1c4d3]': !(isRequired('email') || hasEmailError()) }"
         type="text" placeholder="Correo electronico" name="email" formControlName="email">
 
       @if (isRequired('email')) {
 
-      <small class="text-red-500">Este campo es requerido</small>
+      <small class="text-red-500 pl-[5px]">Este campo es requerido</small>
       }
+
       @if (hasEmailError()) {
 
-      <small class="text-red-500">El correo debe ser valido </small>
+      <small class="text-red-500 pl-[5px]">El correo debe ser valido </small>
       }
       <input class="mt-[18px] border-[1px] border-[#b1c4d3] px-[15px] py-[12px] focus:outline-none rounded-xl"
+      [ngClass]="{ 'border-red-500': isRequired('password') || hasPasswordError(), 'border-[#b1c4d3]': !(isRequired('password') || hasPasswordError()) }"
         type="password" placeholder="Contraseña" name="password" formControlName="password">
+
       @if (isRequired('password')) {
 
-      <small class="text-red-500">Este campo es requerido</small>
+      <small class="text-red-500 mb-[15px] pl-[5px]">Este campo es requerido</small>
       }
+
+      @if (hasPasswordError()) {
+        
+        <small class="text-red-500 mb-[15px] pl-[5px]">La contraseña debe tener al menos 8 caracteres, incluir una mayúscula, una minúscula, un número y un carácter especial.</small>
+      }
+
       <a routerLink="/auth/login" class="text-blue-600 self-start">¿Olvidates tu contraseña?</a>
 
       <button
