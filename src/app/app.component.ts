@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component} from '@angular/core';
 import { RouterOutlet } from '@angular/router'
 import { NgxSonnerToaster } from 'ngx-sonner';
 
@@ -7,6 +7,9 @@ import { NgxSonnerToaster } from 'ngx-sonner';
   imports: [RouterOutlet, NgxSonnerToaster],
   templateUrl: './app.component.html'
 })
+
 export class AppComponent {
-  title = 'mentorium-v2';
+  title(title: any) {
+    throw new Error('Method not implemented.');
+  }
 }
