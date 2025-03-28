@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { AuthStateService } from '../../data-access/auth-state.service';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-layout',
@@ -13,6 +14,9 @@ export default class LayoutComponent {
 
   async logOut() {
     await this._authState.logOut();
-    this._router.navigateByUrl('/auth/login'); 
+    toast.success('Hasta luego');
+    console.clear();
+    this._router.navigateByUrl('/auth/login');
+     
   } 
 }

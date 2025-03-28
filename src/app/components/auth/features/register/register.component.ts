@@ -72,4 +72,6 @@ export default class RegisterComponent {
       toast.error('Error al logearse');
     }
   }
+
+  
 }

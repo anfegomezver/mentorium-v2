@@ -1,45 +1,126 @@
 <div class="flex justify-center items-center h-screen">
-    <div class="bg-white w-[500px] h-auto p-[30px] rounded-3xl shadow-lg">
-        <div class="w-full  h-auto text-center mb-[15px] flex flex-col items-center">
-            <h1 class="text-[45px] font-semibold">Registro</h1>
-            <p class="text-[12px] -m-[5px] text-neutral-500 mb-5">Registrate y forma parte de la familia Mentorium</p>
-            <app-google-button (onClick)="submitWithGoogle()"/>
-        </div>
-        <form class="flex flex-col" [formGroup]="form" (ngSubmit)="submit()">
-            <!-- <input class="mb-[18px] border-b-[1px] border-[#107acc] px-[5px] py-[2px] focus:outline-none" type="text"
-                placeholder="Nombre completo">
-            <input class="mb-[18px] border-b-[1px] border-[#107acc] px-[5px] py-[2px] focus:outline-none" type="text"
-                placeholder="Usuario"> -->
-            <input class="mt-[18px] border-[1px] border-[#b1c4d3] px-[15px] py-[12px] focus:outline-none rounded-xl"
-                type="text" placeholder="Correo electronico" name="email" formControlName="email">
-
-            @if (isRequired('email')) {
-
-            <small class="text-red-500">Este campo es requerido</small>
-            }
-            @if (hasEmailError()) {
-
-            <small class="text-red-500">El correo debe ser valido </small>
-            }
-            <input class="mt-[18px] border-[1px] border-[#b1c4d3] px-[15px] py-[12px] focus:outline-none rounded-xl"
-                type="password" placeholder="Contraseña" name="password" formControlName="password">
-            @if (isRequired('password')) {
-
-            <small class="text-red-500">Este campo es requerido</small>
-            }
-            <!-- <input class="mb-[18px] border-b-[1px] border-[#107acc] px-[5px] py-[2px] focus:outline-none" type="password"
-                placeholder="Repete la contraseña"> -->
-            <!-- <div class="flex items-center px-[5px] mt-[20px] mb-[25px]">
-                <input type="checkbox">
-                <label class="ml-[10px] text-[13px]" for="">Acepta Terminos y Licencias</label>
-            </div> -->
-            <button
-                class="bg-[#107acc] h-[50px] text-white text-[20px] font-semibold rounded-2xl w-[200px] m-auto hover:bg-[hsl(206,94%,50%)] border-[2px] hover:shadow-lg cursor-pointer transition-colors duration-300 border-none mt-5">
-                Registrar
-            </button>
-            <span class="mt-7">¿Ya tienes cuenta?
-                <a routerLink="/auth/login" class="underline text-blue-600">Inicia sesión.</a></span>
-        </form>
-
+  <div class="bg-white w-[500px] h-auto p-[30px] rounded-3xl shadow-lg">
+    <div class="w-full h-auto text-center mb-[15px] flex flex-col items-center">
+      <h1 class="text-[45px] font-semibold font-sans">¡Regístrate!</h1>
+      <p class="text-[16px] font-sans m-[3px] text-neutral-500 mb-5">
+        Registrate y forma parte de la familia Mentorium
+    </p>
+    <!-- <app-google-button (onClick)="submitWithGoogle()"/> -->
     </div>
+    <form
+      class="flex flex-col w-[95%] mx-auto gap-1"
+      [formGroup]="form"
+      (ngSubmit)="submit()"
+    >
+      <div class="flex flex-col">
+        <label class="text-[15px] text-neutral-500 font-semibold"
+          >Usuario:</label
+        >
+        <input
+          class="mt-[7px] border-[1px] border-[#b1c4d3] px-[12px] py-[9px] focus:outline-blue-400 shadow font-[350] font-sans text-[16px] rounded-lg"
+          type="text"
+          placeholder="Ingresa tu usuario"
+          name="Username"
+          formControlName="Username"
+        />
+        <div class="h-7"></div>
+      </div>
+
+      <div class="flex flex-col">
+        <label class="text-[15px] text-neutral-500 font-semibold"
+          >Nombre:</label
+        >
+        <input
+          class="mt-[7px] border-[1px] border-[#b1c4d3] px-[12px] py-[9px] focus:outline-blue-400 shadow font-[350] font-sans text-[16px] rounded-lg"
+          type="text"
+          placeholder="Ingresa tu nombre"
+          name="fullName"
+          formControlName="fullName"
+          autocomplete="off"
+        />
+        <div class="h-7"></div>
+      </div>
+
+      <div class="flex flex-col">
+        <label class="text-[15px] text-neutral-500 font-semibold"
+          >Correo electronico:</label
+        >
+        <input
+          class="mt-[7px] border-[1px] border-[#b1c4d3] px-[12px] py-[9px] focus:outline-blue-400 shadow font-[350] font-sans text-[16px] rounded-lg"
+          type="text"
+          placeholder="Ingresa tu correo electronico"
+          name="email"
+          formControlName="email"
+          autocomplete="off"
+        />
+        <div class="h-7">
+          @if (isRequired('email')) {
+
+          <small class="text-red-500 font-sans">Este campo es requerido</small>
+          } @if (hasEmailError()) {
+
+          <small class="text-red-500">El correo debe ser valido </small>
+          }
+        </div>
+      </div>
+
+      <div class="flex flex-col">
+        <label class="text-[15px] text-neutral-500 font-semibold"
+          >Contraseña:</label
+        >
+        <input
+          class="mt-[7px] border-[1px] border-[#b1c4d3] px-[12px] py-[9px] focus:outline-blue-400 shadow font-[350] font-sans text-[16px] rounded-lg"
+          type="password"
+          placeholder="Ingresa una contraseña"
+          name="password"
+          formControlName="password"
+          autocomplete="off"
+        />
+        <div class="h-7">
+          @if (isRequired('password')) {
+
+          <small class="text-red-500">Este campo es requerido</small>
+          }
+        </div>
+      </div>
+      <div class="flex flex-col">
+        <label class="text-[15px] text-neutral-500 font-semibold"
+          >Confirme contraseña:</label
+        >
+        <input
+          class="mt-[7px] border-[1px] border-[#b1c4d3] px-[12px] py-[9px] focus:outline-blue-400 shadow font-[350] font-sans text-[16px] rounded-lg"
+          type="password"
+          placeholder="Repite la contraseña"
+          name="repeatPassword"
+          formControlName="repeatPassword"
+          autocomplete="off"
+        />
+        <div class="h-7"></div>
+        <!-- @if (isRequired('password')) {
+
+      <small class="text-red-500">Este campo es requerido</small>
+      } -->
+      </div>
+
+      <!-- <input class="mb-[18px] border-b-[1px] border-[#107acc] px-[5px] py-[2px] focus:outline-none" type="password"
+                placeholder="Repete la contraseña"> -->
+      <div class="flex items-center px-[5px]">
+        <input type="checkbox" class="size-4 " />
+        <label class="text-[14px] text-gray-900 ml-3.5" for=""
+          ><a routerLink="/auth/register">Acepta Terminos y Licencias</a></label
+        >
+      </div>
+      <button
+        class="bg-[#0075FF] h-[45px] text-white text-[20px] font-[450] font-sans rounded-lg  w-[180px] m-auto hover:bg-[#005FCC] border-[2px] cursor-pointer transition-colors border-none mt-5"
+      >
+        Continuar 
+      </button>
+      <span class="mt-7"
+        >¿Ya tienes cuenta?
+        <a routerLink="/auth/login" class="underline text-blue-600"
+          >Inicia sesión.</a
+        ></span
+      >
+    </form>
+  </div>
 </div>
