@@ -1,59 +1,36 @@
 <div class="flex justify-center items-center h-screen">
   <div class="bg-white w-[500px] h-auto p-[30px] rounded-3xl shadow-lg">
-    <div class="w-full h-auto text-center mb-[15px] flex flex-col items-center">
-      <h1 class="text-[45px] font-semibold font-sans">¡Regístrate!</h1>
-      <p class="text-[16px] font-sans m-[3px] text-neutral-500 mb-5">
+    <div class="w-full h-auto text-center flex flex-col items-center  -mt-[15px] mb-2">
+      <h1 class="text-[40px] font-semibold font-sans">¡Regístrate!</h1>
+      <p class="text-[16px] font-sans m-[3px] text-gray-900 font-[350]">
         Registrate y forma parte de la familia Mentorium
-    </p>
-    <!-- <app-google-button (onClick)="submitWithGoogle()"/> -->
+      </p>
+      <!-- <app-google-button (onClick)="submitWithGoogle()"/> -->
     </div>
-    <form
-      class="flex flex-col w-[95%] mx-auto gap-1"
-      [formGroup]="form"
-      (ngSubmit)="submit()"
-    >
+    <form class="flex flex-col w-[95%] mx-auto gap-2" [formGroup]="form" (ngSubmit)="submit()">
       <div class="flex flex-col">
-        <label class="text-[15px] text-neutral-500 font-semibold"
-          >Usuario:</label
-        >
+        <label class="text-[15px] text-gray-900 font-semibold">Usuario:</label>
         <input
           class="mt-[7px] border-[1px] border-[#b1c4d3] px-[12px] py-[9px] focus:outline-blue-400 shadow font-[350] font-sans text-[16px] rounded-lg"
-          type="text"
-          placeholder="Ingresa tu usuario"
-          name="Username"
-          formControlName="Username"
-        />
-        <div class="h-7"></div>
+          type="text" placeholder="Ingresa tu usuario" name="username" formControlName="username" />
+        <div class="h-auto"></div>
       </div>
 
       <div class="flex flex-col">
-        <label class="text-[15px] text-neutral-500 font-semibold"
-          >Nombre:</label
-        >
+        <label class="text-[15px] text-gray-900 font-semibold">Nombre:</label>
         <input
           class="mt-[7px] border-[1px] border-[#b1c4d3] px-[12px] py-[9px] focus:outline-blue-400 shadow font-[350] font-sans text-[16px] rounded-lg"
-          type="text"
-          placeholder="Ingresa tu nombre"
-          name="fullName"
-          formControlName="fullName"
-          autocomplete="off"
-        />
-        <div class="h-7"></div>
+          type="text" placeholder="Ingresa tu nombre" name="name" formControlName="name" autocomplete="off" />
+        <div class="h-auto"></div>
       </div>
 
       <div class="flex flex-col">
-        <label class="text-[15px] text-neutral-500 font-semibold"
-          >Correo electronico:</label
-        >
+        <label class="text-[15px] text-gray-900 font-semibold">Correo electrónico:</label>
         <input
           class="mt-[7px] border-[1px] border-[#b1c4d3] px-[12px] py-[9px] focus:outline-blue-400 shadow font-[350] font-sans text-[16px] rounded-lg"
-          type="text"
-          placeholder="Ingresa tu correo electronico"
-          name="email"
-          formControlName="email"
-          autocomplete="off"
-        />
-        <div class="h-7">
+          type="text" placeholder="Ingresa tu correo electrónico" name="email" formControlName="email"
+          autocomplete="off" />
+        <div class="h-auto">
           @if (isRequired('email')) {
 
           <small class="text-red-500 font-sans">Este campo es requerido</small>
@@ -65,18 +42,12 @@
       </div>
 
       <div class="flex flex-col">
-        <label class="text-[15px] text-neutral-500 font-semibold"
-          >Contraseña:</label
-        >
+        <label class="text-[15px] text-gray-900 font-semibold">Contraseña:</label>
         <input
           class="mt-[7px] border-[1px] border-[#b1c4d3] px-[12px] py-[9px] focus:outline-blue-400 shadow font-[350] font-sans text-[16px] rounded-lg"
-          type="password"
-          placeholder="Ingresa una contraseña"
-          name="password"
-          formControlName="password"
-          autocomplete="off"
-        />
-        <div class="h-7">
+          type="password" placeholder="Ingresa una contraseña" name="password" formControlName="password"
+          autocomplete="off" />
+        <div class="h-auto">
           @if (isRequired('password')) {
 
           <small class="text-red-500">Este campo es requerido</small>
@@ -84,43 +55,37 @@
         </div>
       </div>
       <div class="flex flex-col">
-        <label class="text-[15px] text-neutral-500 font-semibold"
-          >Confirme contraseña:</label
-        >
+        <label class="text-[15px] text-gray-900 font-semibold">Confirme contraseña:</label>
         <input
           class="mt-[7px] border-[1px] border-[#b1c4d3] px-[12px] py-[9px] focus:outline-blue-400 shadow font-[350] font-sans text-[16px] rounded-lg"
-          type="password"
-          placeholder="Repite la contraseña"
-          name="repeatPassword"
-          formControlName="repeatPassword"
-          autocomplete="off"
-        />
-        <div class="h-7"></div>
-        <!-- @if (isRequired('password')) {
+          type="password" placeholder="Repite la contraseña" name="repeatPassword" formControlName="repeatPassword"
+          autocomplete="off" />
+        <div class="h-auto"></div>
 
-      <small class="text-red-500">Este campo es requerido</small>
-      } -->
       </div>
 
-      <!-- <input class="mb-[18px] border-b-[1px] border-[#107acc] px-[5px] py-[2px] focus:outline-none" type="password"
-                placeholder="Repete la contraseña"> -->
-      <div class="flex items-center px-[5px]">
+      <div class="flex items-center px-[5px] mt-1">
         <input type="checkbox" class="size-4 " />
-        <label class="text-[14px] text-gray-900 ml-3.5" for=""
-          ><a routerLink="/auth/register">Acepta Terminos y Licencias</a></label
-        >
+        <label class="text-[15px] font-[350] text-gray-900 ml-3.5" for="">He leído y acepto los <a
+            routerLink="/auth/register" class=" text-blue-600">terminos y condiciones</a></label>
       </div>
-      <button
-        class="bg-[#0075FF] h-[45px] text-white text-[20px] font-[450] font-sans rounded-lg  w-[180px] m-auto hover:bg-[#005FCC] border-[2px] cursor-pointer transition-colors border-none mt-5"
-      >
-        Continuar 
+      <button [disabled]="loading()"
+        class="bg-[#0075FF] h-[45px] text-white text-[20px] font-[450] font-sans rounded-lg hover:bg-[#005FCC] border-[2px] cursor-pointer transition-colors border-none w-full mt-2 flex items-center justify-center">
+
+        <span *ngIf="loading()" class="inline-block mr-2">
+          <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+            viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+            </path>
+          </svg>
+        </span>
+
+        {{ loading() ? '' : 'Continuar' }}
       </button>
-      <span class="mt-7"
-        >¿Ya tienes cuenta?
-        <a routerLink="/auth/login" class="underline text-blue-600"
-          >Inicia sesión.</a
-        ></span
-      >
+      <span class="mt-2 text-[16px] text-gray-900 font-[350]">¿Ya tienes cuenta?
+        <a routerLink="/auth/login" class=" text-blue-600">Inicia sesión</a></span>
     </form>
   </div>
 </div>

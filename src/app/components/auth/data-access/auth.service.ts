@@ -1,5 +1,12 @@
 import { inject, Injectable } from '@angular/core';
-import { Auth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from '@angular/fire/auth';
+import {
+  Auth,
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  type User as FirebaseUser,
+} from '@angular/fire/auth';
 
 export interface User {
   email: string;
@@ -19,14 +26,22 @@ export class AuthService {
       user.password
     );
   }
+
   login(user: User) {
     return signInWithEmailAndPassword(this._auth, user.email, user.password);
-    
   }
+
   loginGoogle() {
-
-    //.setCustomParameters({ prompt: 'select_account' })   Forzar a seleccionar cuenta
-
     return signInWithPopup(this._auth, new GoogleAuthProvider());
+  }
+
+  // Método para obtener el usuario actual
+  getCurrentUser(): FirebaseUser | null {
+    return this._auth.currentUser;
+  }
+
+  // Método para cerrar sesión
+  logout() {
+    return this._auth.signOut();
   }
 }
