@@ -1,0 +1,59 @@
+<div class="flex justify-center items-center h-screen">
+  <div class="bg-white w-[500px] h-auto p-[30px] rounded-3xl shadow-lg">
+    <div class="w-full h-auto mb-[15px] flex flex-col items-center">
+      <h1 class="text-[45px] font-semibold">¡Inicia sesión!</h1>
+      <p class="text-[12px] -m-[5px] text-neutral-500 mb-5">
+        Te damos la bienvenida de nuevo a Mentorium
+      </p>
+      <app-google-button (onClick)="submitWithGoogle()" />
+    </div>
+    <form class="flex flex-col" [formGroup]="form" (ngSubmit)="submit()">
+      <input class="mt-[18px] border-[1px] border-[#b1c4d3] px-[15px] py-[12px] focus:outline-none rounded-xl"
+      [ngClass]="{ 'border-red-500': isRequired('email') || hasEmailError(), 'border-[#b1c4d3]': !(isRequired('email') || hasEmailError()) }"
+        type="text" placeholder="Correo electronico" name="email" formControlName="email"
+      >
+
+      @if (isRequired('email')) {
+      <small class="text-red-500 ">Este campo es requerido</small>
+      }
+
+      @if (hasEmailError()) {
+      <small class="text-red-500">El correo debe ser valido </small>
+      }
+
+      <input class="mt-[18px] border-[1px] border-[#b1c4d3] px-[15px] py-[12px] focus:outline-none rounded-xl"
+      [ngClass]="{ 'border-red-500': isRequired('password') || hasPasswordError(), 'border-[#b1c4d3]': !(isRequired('password') || hasPasswordError()) }"
+        type="password" placeholder="Contraseña" name="password" formControlName="password"
+      >
+
+      @if (isRequired('password')) {
+      <small class="text-red-500 mb-[15px]">Este campo es requerido</small>
+      }
+
+      @if (hasPasswordError()) {
+        <small class="text-red-500 mb-[15px]"> La contraseña debe tener al menos 8 caracteres, incluir una mayúscula, una minúscula, un número y un carácter especial.</small>
+      }
+
+      <a routerLink="/auth/login" class="text-blue-600 self-start">¿Olvidates tu contraseña?</a>
+
+      <button [disabled]="loading()"
+        class="bg-[#0075FF] h-[45px] text-white text-[20px] font-[450] font-sans rounded-lg hover:bg-[#005FCC] border-[2px] cursor-pointer transition-colors border-none w-full mt-8 flex items-center justify-center">
+
+        <span *ngIf="loading()" class="inline-block mr-2">
+          <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+            viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+            </path>
+          </svg>
+        </span>
+
+        {{ loading() ? '' : 'Entrar' }}
+      </button>
+
+      <span class="mt-7">¿Aun no tienes cuenta?
+        <a routerLink="/auth/register" class="underline text-blue-600">Registrate ahora.</a></span>
+    </form>
+  </div>
+</div>

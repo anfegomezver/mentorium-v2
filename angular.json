@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "Mentorium_v2": {
+    "mentorium-v2": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -59,10 +59,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "Mentorium_v2:build:production"
+              "buildTarget": "mentorium-v2:build:production"
             },
             "development": {
-              "buildTarget": "Mentorium_v2:build:development"
+              "buildTarget": "mentorium-v2:build:development"
             }
           },
           "defaultConfiguration": "development"
