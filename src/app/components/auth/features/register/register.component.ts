@@ -32,6 +32,7 @@ export default class RegisterComponent {
   private _usersService = inject(UsersService);
 
   loading = signal(false);
+  isChecked = signal(false);
 
   private _router = inject(Router);
 
@@ -43,6 +44,17 @@ export default class RegisterComponent {
     return hasEmailError(this.form);
   }
 
+  onCheckboxChange(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    this.isChecked.set(inputElement.checked);
+  }
+  
+  passwordsMatchValidator(group: any) {
+    const password = group.get('password')?.value;
+    const repeatPassword = group.get('repeatPassword')?.value;
+    return password === repeatPassword ? null : { passwordsMismatch: true };
+  }
+
   form = this._formBuilder.group<FormRegister>({
     username: this._formBuilder.control('', Validators.required),
     name: this._formBuilder.control('', Validators.required),
@@ -50,42 +62,49 @@ export default class RegisterComponent {
       Validators.required,
       Validators.email,
     ]),
-    password: this._formBuilder.control('', Validators.required),
+    password: this._formBuilder.control('', [
+      Validators.required,
+      Validators.minLength(8),
+      Validators.pattern(/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/),
+    ]),
     repeatPassword: this._formBuilder.control('', Validators.required),
-  });
+  },
+  { validators: this.passwordsMatchValidator });
 
   async submit() {
-    if (this.form.valid) {
-      const { email, password } = this.form.value;
-
-      if (!email || !password) {
-        return;
-      }
-      try {
-        this.loading.set(true);
-
-        // 1. Registrar en Firebase Auth
-        const userCredential = await this._authService.register({
-          email,
-          password,
-        });
-        const uid = userCredential.user.uid;
-
-        // 2. Guardar en Firestore con el email
-        const user: UserCreate = {
-          username: this.form.value.username || '',
-          name: this.form.value.name || '',
-          email: email, // Importante: guardar el email para poder buscar por él
-        };
-
-        await this._usersService.createWithUID(user, uid);
-
-        toast.success('Usuario creado correctamente');
-        this._router.navigateByUrl('/dashboard');
-      } catch (error) {
-        toast.error('Error al crear el usuario');
-      } finally {
-        this.loading.set(false);
+    if (this.form.valid && this.isChecked()){
+      if (this.form.valid) {
+        const { email, password } = this.form.value;
+  
+        if (!email || !password) {
+          return;
+        }
+        try {
+          this.loading.set(true);
+  
+          // 1. Registrar en Firebase Auth
+          const userCredential = await this._authService.register({
+            email,
+            password,
+          });
+          const uid = userCredential.user.uid;
+  
+          // 2. Guardar en Firestore con el email
+          const user: UserCreate = {
+            username: this.form.value.username || '',
+            name: this.form.value.name || '',
+            email: email, // Importante: guardar el email para poder buscar por él
+          };
+  
+          await this._usersService.createWithUID(user, uid);
+  
+          toast.success('Usuario creado correctamente');
+          this._router.navigateByUrl('/dashboard');
+        } catch (error) {
+          toast.error('Error al crear el usuario');
+        } finally {
+          this.loading.set(false);
+        }
       }
     }
   }
