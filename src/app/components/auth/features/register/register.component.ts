@@ -32,6 +32,7 @@ export default class RegisterComponent {
   private _usersService = inject(UsersService);
 
   loading = signal(false);
+  isChecked = signal(false);
 
   private _router = inject(Router);
 
@@ -43,19 +44,42 @@ export default class RegisterComponent {
     return hasEmailError(this.form);
   }
 
-  form = this._formBuilder.group<FormRegister>({
-    username: this._formBuilder.control('', Validators.required),
-    name: this._formBuilder.control('', Validators.required),
-    email: this._formBuilder.control('', [
-      Validators.required,
-      Validators.email,
-    ]),
-    password: this._formBuilder.control('', Validators.required),
-    repeatPassword: this._formBuilder.control('', Validators.required),
-  });
+  passwordsMatchValidator(form: any) {
+    const password = form.get('password')?.value;
+    const repeatPassword = form.get('repeatPassword')?.value;
+    return password === repeatPassword ? null : { passwordsMismatch: true };
+  }
+
+  hasPasswordError() {
+    const passwordControl = this.form.get('password');
+    if (!passwordControl) return false;
+
+    return passwordControl.hasError('minlength') || passwordControl.hasError('pattern');
+  }
+
+  onCheckboxChange(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    this.isChecked.set(inputElement.checked);
+  }
+
+  form = this._formBuilder.group<FormRegister>(
+    {
+      username: this._formBuilder.control('', Validators.required),
+      name: this._formBuilder.control('', Validators.required),
+      email: this._formBuilder.control('', [Validators.required, Validators.email]),
+      password: this._formBuilder.control('', [
+        Validators.required,
+        Validators.minLength(8),
+        Validators.pattern(/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/),
+      ]),
+      repeatPassword: this._formBuilder.control('', Validators.required),
+    },
+    { validators: (form) => this.passwordsMatchValidator(form) }
+  );
 
   async submit() {
-    if (this.form.valid) {
+
+    if (this.form.valid && this.isChecked()) {
       const { email, password } = this.form.value;
 
       if (!email || !password) {
@@ -88,6 +112,7 @@ export default class RegisterComponent {
         this.loading.set(false);
       }
     }
+
   }
   async submitWithGoogle() {
     try {

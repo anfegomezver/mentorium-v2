@@ -44,12 +44,23 @@ export default class LoginComponent {
     return hasEmailError(this.form);
   }
 
+  hasPasswordError() {
+    const passwordControl = this.form.get('password');
+    if (!passwordControl) return false;
+  
+    return passwordControl.hasError('minlength') || passwordControl.hasError('pattern');
+  }
+
   form = this._formBuilder.group<FormLogin>({
     email: this._formBuilder.control('', [
       Validators.required,
       Validators.email,
     ]),
-    password: this._formBuilder.control('', Validators.required),
+    password: this._formBuilder.control('', [
+      Validators.required,
+      Validators.minLength(8), 
+      Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/) 
+    ]),
   });
 
   async submit() {
