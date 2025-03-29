@@ -12,22 +12,28 @@
         <label class="text-[15px] text-gray-900 font-semibold">Usuario:</label>
         <input
           class="mt-[7px] border-[1px] border-[#b1c4d3] px-[12px] py-[9px] focus:outline-blue-400 shadow font-[350] font-sans text-[16px] rounded-lg"
-          type="text" placeholder="Ingresa tu usuario" name="username" formControlName="username" />
-        <div class="h-auto"></div>
+          type="text" placeholder="Ingresa tu usuario" name="username" formControlName="username" [ngClass]="{ 'border-red-500': form.controls['username'].invalid && form.controls['username'].touched }"/>
+          @if (form.controls['username'].invalid && form.controls['username'].touched) {
+            <small class="text-red-500">Este campo es requerido</small>
+          }
       </div>
 
       <div class="flex flex-col">
         <label class="text-[15px] text-gray-900 font-semibold">Nombre:</label>
         <input
           class="mt-[7px] border-[1px] border-[#b1c4d3] px-[12px] py-[9px] focus:outline-blue-400 shadow font-[350] font-sans text-[16px] rounded-lg"
-          type="text" placeholder="Ingresa tu nombre" name="name" formControlName="name" autocomplete="off" />
-        <div class="h-auto"></div>
+          type="text" placeholder="Ingresa tu nombre" name="name" formControlName="name" autocomplete="off" 
+          [ngClass]="{ 'border-red-500': form.controls['name'].invalid && form.controls['name'].touched }"/>
+          @if (form.controls['name'].invalid && form.controls['name'].touched) {
+            <p class="text-red-500 text-sm mt-1">Este campo es requerido</p>
+          }
       </div>
 
       <div class="flex flex-col">
         <label class="text-[15px] text-gray-900 font-semibold">Correo electrónico:</label>
         <input
           class="mt-[7px] border-[1px] border-[#b1c4d3] px-[12px] py-[9px] focus:outline-blue-400 shadow font-[350] font-sans text-[16px] rounded-lg"
+          [ngClass]="{ 'border-red-500': isRequired('email') || hasEmailError(), 'border-[#b1c4d3]': !(isRequired('email') || hasEmailError()) }"
           type="text" placeholder="Ingresa tu correo electrónico" name="email" formControlName="email"
           autocomplete="off" />
         <div class="h-auto">
@@ -45,6 +51,7 @@
         <label class="text-[15px] text-gray-900 font-semibold">Contraseña:</label>
         <input
           class="mt-[7px] border-[1px] border-[#b1c4d3] px-[12px] py-[9px] focus:outline-blue-400 shadow font-[350] font-sans text-[16px] rounded-lg"
+          [ngClass]="{ 'border-red-500': isRequired('password') || hasPasswordError(), 'border-[#b1c4d3]': !(isRequired('password') || hasPasswordError()) }"
           type="password" placeholder="Ingresa una contraseña" name="password" formControlName="password"
           autocomplete="off" />
           <div class="h-auto">
@@ -61,6 +68,8 @@
         <label class="text-[15px] text-gray-900 font-semibold">Confirme contraseña:</label>
         <input
           class="mt-[7px] border-[1px] border-[#b1c4d3] px-[12px] py-[9px] focus:outline-blue-400 shadow font-[350] font-sans text-[16px] rounded-lg"
+          [ngClass]="{ 'border-red-500': form.get('repeatPassword')?.invalid && form.get('repeatPassword')?.touched, 
+                'border-gray-300': !(form.get('repeatPassword')?.invalid && form.get('repeatPassword')?.touched) }"
           type="password" placeholder="Repite la contraseña" name="repeatPassword" formControlName="repeatPassword"
           autocomplete="off" />
         <div class="h-auto">
