@@ -3,6 +3,7 @@ import {
   Auth,
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
   type User as FirebaseUser,
@@ -35,13 +36,15 @@ export class AuthService {
     return signInWithPopup(this._auth, new GoogleAuthProvider());
   }
 
-  // Método para obtener el usuario actual
   getCurrentUser(): FirebaseUser | null {
     return this._auth.currentUser;
   }
 
-  // Método para cerrar sesión
   logout() {
     return this._auth.signOut();
+  }
+
+  resetPassword(email: string): Promise<void> {
+    return sendPasswordResetEmail(this._auth, email);
   }
 }
