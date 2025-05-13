@@ -1,12 +1,12 @@
 export const environment = {
     production: true,
     firebaseConfig: {
-      projectId: 'mentorium-v2',
-      appId: '1:86110511134:web:34073018cec2ceb3b44e0f',
-      storageBucket: 'mentorium-v2.firebasestorage.app',
-      apiKey: 'AIzaSyDImS3FmL2VA6CQ-5EhGmcTEvEBASXN37E',
-      authDomain: 'mentorium-v2.firebaseapp.com',
-      messagingSenderId: '86110511134',
+      apiKey: "AIzaSyAJrAD-88iVk7rZs0fH54pjZHU1dvCBioM",
+      authDomain: "mentorium-v3.firebaseapp.com",
+      projectId: "mentorium-v3",
+      storageBucket: "mentorium-v3.firebasestorage.app",
+      messagingSenderId: "1018375808563",
+      appId: "1:1018375808563:web:e387b0f67b2cc8cbf32546"
     },
   };
   
