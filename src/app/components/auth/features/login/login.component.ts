@@ -135,15 +135,36 @@ export default class LoginComponent {
     }
   }
 
-  submitWithFacebook() {
-    this._authService.loginFacebook()
-      .then(cred => {
-        console.log('Inicio de sesión con Facebook exitoso:', cred.user);
-      })
-      .catch(err => {
-        console.error('Error al iniciar sesión con Facebook:', err);
-      });
+  async submitWithFacebook() {
+  try {
+    this.loading.set(true);  // Mostrar indicador de carga
+    
+    const cred = await this._authService.loginFacebook();
+    const user = cred.user;
+    
+    if (user && user.email) {
+      const existingUser = await this._usersService.getUserByEmail(user.email);
+      if (!existingUser) {
+        const newUser = {
+          username: '',
+          name: user.displayName || '',
+          email: user.email,
+        };
+        await this._usersService.createWithUID(newUser, user.uid);
+      }
+    }
+    
+    toast.success('Bienvenido');
+    this._router.navigateByUrl('/dashboard');  // Redirigir tras login exitoso
+    
+  } catch (error) {
+    console.error('Error al iniciar sesión con Facebook:', error);
+    toast.error('Error al iniciar sesión con Facebook');
+  } finally {
+    this.loading.set(false);  // Quitar indicador de carga
   }
+}
+
   
   async submitWithGitHub() {
     try {
