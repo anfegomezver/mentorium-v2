@@ -9,6 +9,10 @@ import {
   type User as FirebaseUser,
 } from '@angular/fire/auth';
 
+import { FacebookAuthProvider } from '@angular/fire/auth';
+import { getAuth, GithubAuthProvider, UserCredential } from 'firebase/auth';
+
+
 export interface User {
   email: string;
   password: string;
@@ -34,6 +38,15 @@ export class AuthService {
 
   loginGoogle() {
     return signInWithPopup(this._auth, new GoogleAuthProvider());
+  }
+
+  loginFacebook() {
+    return signInWithPopup(this._auth, new FacebookAuthProvider());
+  }
+
+  loginGitHub(): Promise<UserCredential> {
+    const provider = new GithubAuthProvider();
+    return signInWithPopup(this._auth, provider);
   }
 
   getCurrentUser(): FirebaseUser | null {

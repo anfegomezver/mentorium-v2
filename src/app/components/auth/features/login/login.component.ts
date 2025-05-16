@@ -10,6 +10,8 @@ import { hasEmailError, isRequired } from '../../utils/validators';
 import { toast } from 'ngx-sonner';
 import { Router, RouterLink } from '@angular/router';
 import { GoogleButtonComponent } from '../../ui/google-button/google-button.component';
+import { FacebookButtonComponent } from '../../ui/facebook-button/facebook-button.component';
+import { GithubButtonComponent } from '../../ui/github-button/github-button.component';
 import { UsersService } from '../../data-access/users.service';
 import { CommonModule } from '@angular/common';
 
@@ -24,6 +26,8 @@ interface FormLogin {
     ReactiveFormsModule,
     RouterLink,
     GoogleButtonComponent,
+    FacebookButtonComponent,
+    GithubButtonComponent,
     CommonModule,
   ],
   templateUrl: './login.component.html',
@@ -126,6 +130,44 @@ export default class LoginComponent {
     } catch (error) {
       console.error('Error en login con Google:', error);
       toast.error('Error al iniciar sesión');
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  submitWithFacebook() {
+    this._authService.loginFacebook()
+      .then(cred => {
+        console.log('Inicio de sesión con Facebook exitoso:', cred.user);
+      })
+      .catch(err => {
+        console.error('Error al iniciar sesión con Facebook:', err);
+      });
+  }
+  
+  async submitWithGitHub() {
+    try {
+      this.loading.set(true);
+      const cred = await this._authService.loginGitHub();
+  
+      const user = cred.user;
+      if (user && user.email) {
+        const existingUser = await this._usersService.getUserByEmail(user.email);
+        if (!existingUser) {
+          const newUser = {
+            username: '',
+            name: user.displayName || '',
+            email: user.email,
+          };
+          await this._usersService.createWithUID(newUser, user.uid);
+        }
+      }
+  
+      toast.success('Bienvenido');
+      this._router.navigateByUrl('/dashboard');
+    } catch (error) {
+      console.error('Error login GitHub:', error);
+      toast.error('Error al iniciar sesión con GitHub');
     } finally {
       this.loading.set(false);
     }

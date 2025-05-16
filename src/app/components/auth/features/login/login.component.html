@@ -6,6 +6,9 @@
         Te damos la bienvenida de nuevo a Mentorium
       </p>
       <app-google-button (onClick)="submitWithGoogle()" />
+      <app-facebook-button (onClick)="submitWithFacebook()" />
+      <app-github-button (onClick)="submitWithGitHub()" />
+
     </div>
     <form class="flex flex-col" [formGroup]="form" (ngSubmit)="submit()">
       <input class="mt-[18px] border-[1px] border-[#b1c4d3] px-[15px] py-[12px] focus:outline-none rounded-xl"
