@@ -15,7 +15,7 @@ export class HomeComponent implements OnInit {
   userProfile: any = null;
   email: string | null = null;
 
-  tasks = inject(TaskService).getTask;
+  tasks = inject(TaskService).getTasks;
 
   constructor(private auth: Auth, private usersService: UsersService) {}
 
