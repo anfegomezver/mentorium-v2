@@ -1,16 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 import { UsersService } from '../../../auth/data-access/users.service';
 import { CommonModule } from '@angular/common';
+import { TableComponent } from '../ui/table/table.component';
+import { RouterLink } from '@angular/router';
+import { TaskService } from '../task.service';
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule],
+  imports: [CommonModule, TableComponent, RouterLink],
   templateUrl: './home.component.html',
 })
 export class HomeComponent implements OnInit {
   userProfile: any = null;
   email: string | null = null;
+
+  tasks = inject(TaskService).getTask;
 
   constructor(private auth: Auth, private usersService: UsersService) {}
 
@@ -26,6 +31,7 @@ export class HomeComponent implements OnInit {
         this.email = null;
       }
     });
+
   }
 
   // Cargar usuario por email
