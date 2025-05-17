@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { TableComponent } from '../ui/table/table.component';
 import { RouterLink } from '@angular/router';
 import { TaskService } from '../task.service';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-home',
@@ -15,38 +16,39 @@ export class HomeComponent implements OnInit {
   userProfile: any = null;
   email: string | null = null;
 
-  tasks = inject(TaskService).getTasks;
+  taskService = inject(TaskService);
+  tasks = this.taskService.getTasks;
 
   constructor(private auth: Auth, private usersService: UsersService) {}
 
   ngOnInit() {
     onAuthStateChanged(this.auth, async (user) => {
-      if (user && user.email) {
+      if (user?.email) {
         this.email = user.email;
-
-        // Recuperar usuario por email
         await this.loadUserByEmail(user.email);
       } else {
         this.userProfile = null;
         this.email = null;
       }
     });
-
   }
 
-  // Cargar usuario por email
   async loadUserByEmail(email: string) {
     try {
       const userProfile = await this.usersService.getUserByEmail(email);
-
-      if (userProfile) {
-        this.userProfile = userProfile;
-        console.log('Usuario recuperado:', this.userProfile);
-      } else {
-        console.log('No se encontró usuario con ese email');
-      }
+      this.userProfile = userProfile ?? null;
     } catch (error) {
       console.error('Error:', error);
+    }
+  }
+
+  async deleteTask(id: string) {
+    try {
+      await this.taskService.delete(id);
+      toast.success('Tarea eliminada correctamente');
+    } catch (error) {
+      toast.error('Error eliminando la tarea');
+      console.error(error);
     }
   }
 }
