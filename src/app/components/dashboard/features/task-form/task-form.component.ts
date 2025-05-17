@@ -43,8 +43,6 @@ export default class TaskFormComponent{
         await this._taskService.create(task);
       }
 
-      await this._taskService.create(task);
-
       toast.success(`Tarea ${id ? 'actualizada' : 'creada'} correctamente`);
       this._router.navigateByUrl('/dashboard')
 
