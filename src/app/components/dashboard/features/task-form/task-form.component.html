@@ -1,0 +1,32 @@
+<section class="mx-auto w-full max-w-screen-sm px-4">
+    <form class="flex flex-col w-[95%] mx-auto gap-2" [formGroup]="form" (ngSubmit)="submit()">
+        <div class="flex flex-col">
+            <label for="titulo" class="text-[15px] text-gray-900 font-semibold">Titulo:</label>
+            <input
+                class="mt-[7px] border-[1px] border-[#b1c4d3] px-[12px] py-[9px] focus:outline-blue-400 shadow font-[350] font-sans text-[16px] rounded-lg"
+                type="text" placeholder="Ingresa El titulo de la tarea" name="title" formControlName="title" />
+            @if (form.controls['title'].invalid && form.controls['title'].touched) {
+            <small class="text-red-500">Este campo es requerido</small>
+            }
+        </div>
+
+        <div class="flex flex-col">
+            <label class="inline-flex items-center mb-5 cursor-pointer">
+                <input formControlName="completed" type="checkbox" value="" class="sr-only peer">
+                <div
+                    class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:w-5 after:h-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600">
+                </div>
+                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">Completado</span>
+            </label>
+        </div>
+
+
+        <button 
+            type="submit"
+            class="bg-[#0075FF] h-[45px] w-[200px] text-white text-[20px] font-[450] font-sans rounded-lg hover:bg-[#005FCC] border-[2px] cursor-pointer transition-colors border-none mt-[1px] flex items-center justify-center"
+        >
+        Cargar tarea
+        </button>
+        
+    </form>
+</section>
