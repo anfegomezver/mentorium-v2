@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Output, input } from '@angular/core';
 import { Task } from '../../task.service';
 import { RouterLink } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-table',
@@ -14,10 +15,18 @@ export class TableComponent {
 
   @Output() onDelete = new EventEmitter<string>();
 
-  deleteTask(id: string) {
-    const confirmDelete = confirm('¿Estás seguro de que deseas eliminar esta tarea?');
-    if (confirmDelete) {
-      this.onDelete.emit(id);
+  async deleteTask(id: string) {
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta acción eliminará la tarea permanentemente',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+    });
+
+    if (result.isConfirmed) {
+      this.onDelete.emit(id); // Emite el id al componente padre (HomeComponent)
     }
   }
 }
