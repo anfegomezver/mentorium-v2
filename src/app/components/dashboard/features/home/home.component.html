@@ -1,5 +1,10 @@
-<div *ngIf="userProfile">
-    <h2>Bienvenido, {{ userProfile.name }}</h2>
-    <p>Email: {{ email }}</p>
-    <p>Username: {{ userProfile.username }}</p>
-</div>
+<section class="mx-auto w-full max-w-screen-lg px-4">
+  <a
+    routerLink="/dashboard/new"
+    class="text-white bg-[#11619e] hover:bg-[hsl(206,100%,62%)] rounded-2xl py-3 px-5 transition-colors cursor-pointer text font-semibold duration-500 text-[18px]"
+  >
+    Nueva tarea
+  </a>
+
+  <app-table [tasks]="tasks()" (onDelete)="deleteTask($event)"></app-table>
+</section>

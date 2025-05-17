@@ -5,7 +5,10 @@
       <p class="text-[12px] -m-[5px] text-neutral-500 mb-5">
         Te damos la bienvenida de nuevo a Mentorium
       </p>
-      <app-google-button (onClick)="submitWithGoogle()" />
+      <app-google-button (onClick)="submitWithGoogle()" class="my-[5px]"/>
+      <app-facebook-button (onClick)="submitWithFacebook()" class="my-[5px]"/>
+      <app-github-button (onClick)="submitWithGitHub()" class="my-[5px]"/>
+
     </div>
     <form class="flex flex-col" [formGroup]="form" (ngSubmit)="submit()">
       <input class="mt-[18px] border-[1px] border-[#b1c4d3] px-[15px] py-[12px] focus:outline-none rounded-xl"
@@ -34,7 +37,7 @@
         <small class="text-red-500 mb-[15px]"> La contraseña debe tener al menos 8 caracteres, incluir una mayúscula, una minúscula, un número y un carácter especial.</small>
       }
 
-      <a routerLink="/auth/login" class="text-blue-600 self-start">¿Olvidates tu contraseña?</a>
+      <a routerLink="/auth/forgot-password" class="text-blue-600 self-start">¿Olvidates tu contraseña?</a>
 
       <button [disabled]="loading()"
         class="bg-[#0075FF] h-[45px] text-white text-[20px] font-[450] font-sans rounded-lg hover:bg-[#005FCC] border-[2px] cursor-pointer transition-colors border-none w-full mt-8 flex items-center justify-center">

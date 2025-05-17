@@ -3,10 +3,15 @@ import {
   Auth,
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
   type User as FirebaseUser,
 } from '@angular/fire/auth';
+
+import { FacebookAuthProvider } from '@angular/fire/auth';
+import { getAuth, GithubAuthProvider, UserCredential } from 'firebase/auth';
+
 
 export interface User {
   email: string;
@@ -35,13 +40,24 @@ export class AuthService {
     return signInWithPopup(this._auth, new GoogleAuthProvider());
   }
 
-  // Método para obtener el usuario actual
+  loginFacebook() {
+    return signInWithPopup(this._auth, new FacebookAuthProvider());
+  }
+
+  loginGitHub(): Promise<UserCredential> {
+    const provider = new GithubAuthProvider();
+    return signInWithPopup(this._auth, provider);
+  }
+
   getCurrentUser(): FirebaseUser | null {
     return this._auth.currentUser;
   }
 
-  // Método para cerrar sesión
   logout() {
     return this._auth.signOut();
+  }
+
+  resetPassword(email: string): Promise<void> {
+    return sendPasswordResetEmail(this._auth, email);
   }
 }
