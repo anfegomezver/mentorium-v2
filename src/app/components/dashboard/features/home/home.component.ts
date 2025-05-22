@@ -14,9 +14,7 @@ import { toast } from 'ngx-sonner';
   imports: [CommonModule, TableComponent, RouterLink],
   templateUrl: './home.component.html',
 })
-
 export class HomeComponent implements OnInit, OnDestroy {
-
   userProfile: any = null;
   email: string | null = null;
   tasks = inject(TaskService).getTasks;
@@ -28,7 +26,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private taskService = inject(TaskService);
 
   private inactivityTimeoutId: any;
-  private readonly INACTIVITY_LIMIT_MS = 10000; // Tiempo de inactividad en milisegundos
+  private readonly INACTIVITY_LIMIT_MS = 10000;
   private alertRunning = false;
 
   ngOnInit(): void {
@@ -70,7 +68,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   async deleteTask(id: string): Promise<void> {
     try {
       await this.taskService.delete(id);
-      console.log('Tarea eliminada correctamente');
     } catch (error) {
       console.error('Error eliminando la tarea:', error);
     }
@@ -113,26 +110,25 @@ export class HomeComponent implements OnInit, OnDestroy {
   };
 
   private async showInactivityAlert(): Promise<void> {
-  const result = await Swal.fire({
-    title: '¿Eres tú? No se ha detectado actividad reciente',
-    text: `Sesión iniciada como ${this.userProfile?.name || 'usuario'}`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Sí, mantener sesión',
-    cancelButtonText: 'No, cerrar sesión',
-    allowOutsideClick: false,
-    allowEscapeKey: false,
-  });
+    const result = await Swal.fire({
+      title: '¿Eres tú? No se ha detectado actividad reciente',
+      text: `Sesión iniciada como ${this.userProfile?.name || 'usuario'}`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, mantener sesión',
+      cancelButtonText: 'No, cerrar sesión',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+    });
 
-  if (result.isConfirmed) {
-    this.resetInactivityTimer();
-  } else if (result.dismiss === Swal.DismissReason.cancel) {
-    await this.logout();
+    if (result.isConfirmed) {
+      this.resetInactivityTimer();
+    } else if (result.dismiss === Swal.DismissReason.cancel) {
+      await this.logout();
+    }
   }
-}
 
   private async logout(): Promise<void> {
-
     this.stopInactivityTimer();
     localStorage.removeItem(this.LAST_ACTIVITY_KEY);
     localStorage.removeItem('alertRunning');
