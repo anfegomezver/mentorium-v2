@@ -14,10 +14,14 @@ export default class LayoutComponent {
   private _router = inject(Router);
 
   async logOut() {
-    await this._authState.logOut();
-    toast.success('Hasta luego');
-    console.clear();
-    this._router.navigateByUrl('/auth/login');
-     
-  } 
+  // Limpia la actividad de inactividad al hacer logout
+  localStorage.removeItem('lastActivityTimestamp');
+  localStorage.removeItem('alertRunning');
+
+  await this._authState.logOut();
+  toast.success('Hasta luego');
+  console.clear();
+  this._router.navigateByUrl('/auth/login');
+}
+
 }

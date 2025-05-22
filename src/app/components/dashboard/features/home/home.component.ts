@@ -1,15 +1,12 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-
 import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 import Swal from 'sweetalert2';
-import { toast } from 'ngx-sonner';
-
 import { UsersService } from '../../../auth/data-access/users.service';
 import { TaskService } from '../task.service';
-
 import { TableComponent } from '../ui/table/table.component';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-home',
@@ -17,21 +14,22 @@ import { TableComponent } from '../ui/table/table.component';
   imports: [CommonModule, TableComponent, RouterLink],
   templateUrl: './home.component.html',
 })
-export class HomeComponent implements OnInit {
+
+export class HomeComponent implements OnInit, OnDestroy {
+
   userProfile: any = null;
   email: string | null = null;
+  tasks = inject(TaskService).getTasks;
 
-  // Servicios
-  taskService = inject(TaskService);
+  private readonly LAST_ACTIVITY_KEY = 'lastActivityTimestamp';
+  private auth = inject(Auth);
+  private usersService = inject(UsersService);
+  private router = inject(Router);
+  private taskService = inject(TaskService);
 
-  // Signal de tareas
-  tasks = this.taskService.getTasks;
-
-  constructor(
-    private auth: Auth,
-    private usersService: UsersService,
-    private router: Router
-  ) {}
+  private inactivityTimeoutId: any;
+  private readonly INACTIVITY_LIMIT_MS = 10000; // Tiempo de inactividad en milisegundos
+  private alertRunning = false;
 
   ngOnInit(): void {
     onAuthStateChanged(this.auth, async (user) => {
@@ -39,31 +37,31 @@ export class HomeComponent implements OnInit {
         this.email = user.email;
         await this.loadUserByEmail(user.email);
 
-        const result = await Swal.fire({
-          title: `Hola, ${user.email}`,
-          text: '¿Quieres mantener la sesión o cerrarla?',
-          icon: 'question',
-          showCancelButton: true,
-          confirmButtonText: 'Mantener sesión',
-          cancelButtonText: 'Cerrar sesión',
-        });
+        const lastActivityStr = localStorage.getItem(this.LAST_ACTIVITY_KEY);
+        const now = Date.now();
 
-        if (!result.isConfirmed) {
-          await this.auth.signOut();
-          this.router.navigate(['/auth/login']);
+        if (lastActivityStr) {
+          const lastActivity = parseInt(lastActivityStr, 10);
+          const timeElapsed = now - lastActivity;
+
+          if (timeElapsed >= this.INACTIVITY_LIMIT_MS) {
+            await this.showInactivityAlert();
+            return;
+          }
         }
-      } else {
-        this.userProfile = null;
-        this.email = null;
-        this.router.navigate(['/auth/login']);
+
+        this.startInactivityTimer();
       }
     });
   }
 
-  async loadUserByEmail(email: string): Promise<void> {
+  ngOnDestroy(): void {
+    this.stopInactivityTimer();
+  }
+
+  private async loadUserByEmail(email: string): Promise<void> {
     try {
-      const userProfile = await this.usersService.getUserByEmail(email);
-      this.userProfile = userProfile ?? null;
+      this.userProfile = await this.usersService.getUserByEmail(email);
     } catch (error) {
       console.error('Error al cargar usuario:', error);
     }
@@ -72,10 +70,76 @@ export class HomeComponent implements OnInit {
   async deleteTask(id: string): Promise<void> {
     try {
       await this.taskService.delete(id);
-      toast.success('Tarea eliminada correctamente');
+      console.log('Tarea eliminada correctamente');
     } catch (error) {
-      toast.error('Error eliminando la tarea');
-      console.error(error);
+      console.error('Error eliminando la tarea:', error);
     }
+  }
+
+  private startInactivityTimer(): void {
+    this.alertRunning = true;
+    localStorage.setItem('alertRunning', 'true');
+    this.resetInactivityTimer();
+
+    window.addEventListener('mousemove', this.resetInactivityTimer);
+    window.addEventListener('keydown', this.resetInactivityTimer);
+    window.addEventListener('click', this.resetInactivityTimer);
+  }
+
+  private stopInactivityTimer(): void {
+    this.alertRunning = false;
+    localStorage.removeItem('alertRunning');
+    clearTimeout(this.inactivityTimeoutId);
+
+    window.removeEventListener('mousemove', this.resetInactivityTimer);
+    window.removeEventListener('keydown', this.resetInactivityTimer);
+    window.removeEventListener('click', this.resetInactivityTimer);
+  }
+
+  private resetInactivityTimer = (): void => {
+    clearTimeout(this.inactivityTimeoutId);
+
+    const now = Date.now();
+    localStorage.setItem(this.LAST_ACTIVITY_KEY, now.toString());
+
+    this.inactivityTimeoutId = setTimeout(async () => {
+      const lastActivity = parseInt(localStorage.getItem(this.LAST_ACTIVITY_KEY) || '0', 10);
+      const timeElapsed = Date.now() - lastActivity;
+
+      if (this.alertRunning && timeElapsed >= this.INACTIVITY_LIMIT_MS) {
+        await this.showInactivityAlert();
+      }
+    }, this.INACTIVITY_LIMIT_MS);
+  };
+
+  private async showInactivityAlert(): Promise<void> {
+  const result = await Swal.fire({
+    title: '¿Eres tú? No se ha detectado actividad reciente',
+    text: `Sesión iniciada como ${this.userProfile?.name || 'usuario'}`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, mantener sesión',
+    cancelButtonText: 'No, cerrar sesión',
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+  });
+
+  if (result.isConfirmed) {
+    this.resetInactivityTimer();
+  } else if (result.dismiss === Swal.DismissReason.cancel) {
+    await this.logout();
+  }
+}
+
+  private async logout(): Promise<void> {
+
+    this.stopInactivityTimer();
+    localStorage.removeItem(this.LAST_ACTIVITY_KEY);
+    localStorage.removeItem('alertRunning');
+
+    await this.auth.signOut();
+    toast.success('Hasta luego');
+    console.clear();
+    this.router.navigate(['/auth/login']);
   }
 }
