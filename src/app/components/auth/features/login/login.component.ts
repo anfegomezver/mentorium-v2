@@ -94,6 +94,7 @@ export default class LoginComponent {
       toast.success("¡Bienvenido!")
       this._router.navigateByUrl("/dashboard")
     } catch (error: any) {
+      console.error("Error Google:", error)
       if (error.code === "auth/account-exists-with-different-credential") {
         toast.error("Esta cuenta ya existe con otro método de inicio de sesión")
       } else {
@@ -111,15 +112,30 @@ export default class LoginComponent {
       const userCredential = await this._authService.loginFacebook()
       const user = userCredential.user
 
+      console.log("Facebook user data:", {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        providerData: user.providerData,
+      })
+
       await this.handleUserLogin(user, "facebook.com", "Facebook")
 
       toast.success("¡Bienvenido!")
       this._router.navigateByUrl("/dashboard")
     } catch (error: any) {
+      console.error("Error Facebook completo:", error)
+
       if (error.code === "auth/account-exists-with-different-credential") {
         toast.error("Esta cuenta ya existe con otro método de inicio de sesión")
+      } else if (error.code === "auth/popup-blocked") {
+        toast.error("Popup bloqueado. Permite popups para Facebook")
+      } else if (error.code === "auth/popup-closed-by-user") {
+        toast.error("Popup cerrado. Intenta de nuevo")
+      } else if (error.code === "auth/cancelled-popup-request") {
+        toast.error("Solicitud cancelada. Intenta de nuevo")
       } else {
-        toast.error("Error al conectar con Facebook")
+        toast.error(`Error con Facebook: ${error.message || error.code}`)
       }
     } finally {
       this.loading.set(false)
@@ -149,12 +165,23 @@ export default class LoginComponent {
   }
 
   private async handleUserLogin(user: any, providerId: string, displayName: string) {
-    if (!user || !user.email) return
+    if (!user || !user.email) {
+      console.error("Usuario sin email:", user)
+      toast.error("No se pudo obtener el email del usuario")
+      return
+    }
 
     try {
+      console.log(`Procesando usuario ${displayName}:`, {
+        uid: user.uid,
+        email: user.email,
+        providerId,
+      })
+
       const existingUser = await this._usersService.getUserByUID(user.uid)
 
       if (!existingUser) {
+        // Usuario nuevo - crear perfil
         const newUser = {
           username: user.email.split("@")[0] || `user_${Date.now()}`,
           name: user.displayName || user.email.split("@")[0] || "",
@@ -169,7 +196,9 @@ export default class LoginComponent {
         }
 
         await this._usersService.createWithUID(newUser, user.uid, provider)
+        console.log(`Usuario creado con ${displayName}`)
       } else {
+        // Usuario existente - verificar si proveedor ya está vinculado
         const isLinked = await this._usersService.isProviderLinked(user.uid, providerId)
 
         if (!isLinked) {
@@ -181,11 +210,13 @@ export default class LoginComponent {
           }
 
           await this._usersService.addProviderToUser(user.uid, provider)
+          console.log(`${displayName} vinculado a usuario existente`)
           toast.success(`${displayName} vinculado a tu cuenta`)
         }
       }
     } catch (error) {
-      // No interrumpir el login si hay error en Firestore
+      console.error("Error manejando usuario:", error)
+      toast.error("Error al procesar datos del usuario")
     }
   }
 }

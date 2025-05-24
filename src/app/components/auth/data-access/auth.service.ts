@@ -36,6 +36,10 @@ export class AuthService {
 
   async loginFacebook(): Promise<UserCredential> {
     const facebookProvider = new FacebookAuthProvider()
+    // Agregar scopes específicos para Facebook
+    facebookProvider.addScope("email")
+    facebookProvider.addScope("public_profile")
+
     return await signInWithPopup(this._auth, facebookProvider)
   }
 

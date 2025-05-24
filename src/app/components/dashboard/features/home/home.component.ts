@@ -36,9 +36,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   private router = inject(Router)
   private taskService = inject(TaskService)
 
-  private inactivityTimeoutId: any
-  private readonly INACTIVITY_LIMIT_MS = 10000
+  private inactivityTimeoutId: any = null
+  private readonly INACTIVITY_LIMIT_MS = 5000
   private alertRunning = false
+  private eventListenersAdded = false
 
   ngOnInit(): void {
     onAuthStateChanged(this.auth, async (user) => {
@@ -47,20 +48,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.email = user.email
         await this.loadUserByEmail(user.email)
 
-        const lastActivityStr = localStorage.getItem(this.LAST_ACTIVITY_KEY)
-        const now = Date.now()
-
-        if (lastActivityStr) {
-          const lastActivity = Number.parseInt(lastActivityStr, 10)
-          const timeElapsed = now - lastActivity
-
-          if (timeElapsed >= this.INACTIVITY_LIMIT_MS) {
-            await this.showInactivityAlert()
-            return
-          }
+        if (!this.alertRunning) {
+          this.startInactivityTimer()
         }
-
-        this.startInactivityTimer()
       }
     })
   }
@@ -85,7 +75,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Sistema de vinculación de proveedores
   async linkGoogle(): Promise<void> {
     if (!this.currentUser) {
       toast.error("Usuario no autenticado")
@@ -134,6 +123,9 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
 
       const facebookProvider = new FacebookAuthProvider()
+      facebookProvider.addScope("email")
+      facebookProvider.addScope("public_profile")
+
       const result = await linkWithPopup(this.currentUser, facebookProvider)
 
       const provider: AuthProvider = {
@@ -148,7 +140,15 @@ export class HomeComponent implements OnInit, OnDestroy {
 
       toast.success("¡Facebook vinculado exitosamente!")
     } catch (error: any) {
-      toast.error("Error al vincular Facebook")
+      if (error.code === "auth/popup-blocked") {
+        toast.error("Popup bloqueado. Permite popups para Facebook")
+      } else if (error.code === "auth/popup-closed-by-user") {
+        toast.error("Popup cerrado. Intenta de nuevo")
+      } else if (error.code === "auth/account-exists-with-different-credential") {
+        toast.error("Esta cuenta de Facebook ya está asociada con otro usuario")
+      } else {
+        toast.error(`Error al vincular Facebook: ${error.message}`)
+      }
     }
   }
 
@@ -200,7 +200,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
 
       const { value: formValues } = await Swal.fire({
-        title: "Vincular Email/Contraseña",
+        title: "🔐 Vincular Email/Contraseña",
         html: `
           <div class="text-left space-y-4">
             <div>
@@ -291,56 +291,106 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private startInactivityTimer(): void {
+    if (this.alertRunning) return
+
     this.alertRunning = true
     localStorage.setItem("alertRunning", "true")
-    this.resetInactivityTimer()
 
-    window.addEventListener("mousemove", this.resetInactivityTimer)
-    window.addEventListener("keydown", this.resetInactivityTimer)
-    window.addEventListener("click", this.resetInactivityTimer)
+    this.updateLastActivity()
+
+    if (!this.eventListenersAdded) {
+      this.addEventListeners()
+      this.eventListenersAdded = true
+    }
+    this.scheduleInactivityCheck()
   }
 
   private stopInactivityTimer(): void {
     this.alertRunning = false
     localStorage.removeItem("alertRunning")
-    clearTimeout(this.inactivityTimeoutId)
 
-    window.removeEventListener("mousemove", this.resetInactivityTimer)
-    window.removeEventListener("keydown", this.resetInactivityTimer)
-    window.removeEventListener("click", this.resetInactivityTimer)
+    // Limpiar timeout
+    if (this.inactivityTimeoutId) {
+      clearTimeout(this.inactivityTimeoutId)
+      this.inactivityTimeoutId = null
+    }
+
+    // Remover event listeners
+    this.removeEventListeners()
+    this.eventListenersAdded = false
   }
 
-  private resetInactivityTimer = (): void => {
-    clearTimeout(this.inactivityTimeoutId)
+  private addEventListeners(): void {
+    window.addEventListener("mousemove", this.handleUserActivity)
+    window.addEventListener("keydown", this.handleUserActivity)
+    window.addEventListener("click", this.handleUserActivity)
+    window.addEventListener("scroll", this.handleUserActivity)
+    window.addEventListener("touchstart", this.handleUserActivity)
+  }
 
+  private removeEventListeners(): void {
+    window.removeEventListener("mousemove", this.handleUserActivity)
+    window.removeEventListener("keydown", this.handleUserActivity)
+    window.removeEventListener("click", this.handleUserActivity)
+    window.removeEventListener("scroll", this.handleUserActivity)
+    window.removeEventListener("touchstart", this.handleUserActivity)
+  }
+
+  private handleUserActivity = (): void => {
+    if (!this.alertRunning) return
+
+    this.updateLastActivity()
+    this.scheduleInactivityCheck()
+  }
+
+  private updateLastActivity(): void {
     const now = Date.now()
     localStorage.setItem(this.LAST_ACTIVITY_KEY, now.toString())
+  }
 
-    this.inactivityTimeoutId = setTimeout(async () => {
-      const lastActivity = Number.parseInt(localStorage.getItem(this.LAST_ACTIVITY_KEY) || "0", 10)
-      const timeElapsed = Date.now() - lastActivity
+  private scheduleInactivityCheck(): void {
+    if (this.inactivityTimeoutId) {
+      clearTimeout(this.inactivityTimeoutId)
+    }
 
-      if (this.alertRunning && timeElapsed >= this.INACTIVITY_LIMIT_MS) {
-        await this.showInactivityAlert()
-      }
+    this.inactivityTimeoutId = setTimeout(() => {
+      this.checkInactivity()
     }, this.INACTIVITY_LIMIT_MS)
   }
 
+  private async checkInactivity(): Promise<void> {
+    if (!this.alertRunning) return
+
+    const lastActivity = Number.parseInt(localStorage.getItem(this.LAST_ACTIVITY_KEY) || "0", 10)
+    const timeElapsed = Date.now() - lastActivity
+
+    if (timeElapsed >= this.INACTIVITY_LIMIT_MS) {
+      await this.showInactivityAlert()
+    } else {
+      this.scheduleInactivityCheck()
+    }
+  }
+
   private async showInactivityAlert(): Promise<void> {
+    this.alertRunning = false
+
     const result = await Swal.fire({
-      title: "¿Eres tú? No se ha detectado actividad reciente",
-      text: `Sesión iniciada como ${this.userProfile?.name || "usuario"}`,
+      title: "¿Sigues ahí?",
+      text: `Sesión de ${this.userProfile?.name || "usuario"} - No se detectó actividad`,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Sí, mantener sesión",
-      cancelButtonText: "No, cerrar sesión",
+      confirmButtonText: "Sí, continuar",
+      cancelButtonText: "Cerrar sesión",
       allowOutsideClick: false,
       allowEscapeKey: false,
+      timerProgressBar: true,
     })
 
     if (result.isConfirmed) {
-      this.resetInactivityTimer()
-    } else if (result.dismiss === Swal.DismissReason.cancel) {
+      this.alertRunning = true
+      this.updateLastActivity()
+      this.scheduleInactivityCheck()
+    } else {
       await this.logout()
     }
   }
