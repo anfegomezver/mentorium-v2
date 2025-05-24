@@ -1,8 +1,32 @@
-<div class="h-20 bg-[#107acc] text-white flex items-center justify-between px-20">
-    <a routerLink="/dashboard/" class="bg-[#11619e] hover:bg-[hsl(206,100%,62%)] rounded-2xl py-3 px-5 transition-colors cursor-pointer text font-semibold duration-500 text-[20px]">Inicio</a>
-    <button (click)="logOut()" class="bg-[#11619e] hover:bg-[hsl(206,100%,62%)] rounded-2xl py-3 px-5 transition-colors cursor-pointer text font-semibold duration-500 text-[18px]">Salir</button>
+<div class="bg-[#107acc] text-white flex items-center justify-between px-6 py-4 shadow-sm">
+  <div class="flex items-center space-x-4">
+    <h1 class="text-xl font-semibold">Mentorium</h1>
+  </div>
+  
+  <div class="flex items-center space-x-3">
+    <a 
+      routerLink="/dashboard/" 
+      class="bg-[#11619e] hover:bg-[hsl(206,100%,62%)] rounded-lg py-2 px-4 transition-colors duration-300 text-sm font-medium"
+    >
+      Inicio
+    </a>
+    
+    <a 
+      routerLink="/dashboard/new" 
+      class="bg-green-600 hover:bg-green-700 rounded-lg py-2 px-4 transition-colors duration-300 text-sm font-medium"
+    >
+      Nueva Tarea
+    </a>
+    
+    <button 
+      (click)="logOut()" 
+      class="bg-red-600 hover:bg-red-700 rounded-lg py-2 px-4 transition-colors duration-300 text-sm font-medium"
+    >
+      Salir
+    </button>
+  </div>
 </div>
 
-<div class="px-20 py-10">
-    <router-outlet></router-outlet>
+<div class="px-6 py-8 bg-gray-50 min-h-screen">
+  <router-outlet></router-outlet>
 </div>
