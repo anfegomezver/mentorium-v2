@@ -37,7 +37,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private taskService = inject(TaskService)
 
   private inactivityTimeoutId: any = null
-  private readonly INACTIVITY_LIMIT_MS = 5000
+  private readonly INACTIVITY_LIMIT_MS = 60000
   private alertRunning = false
   private eventListenersAdded = false
 
