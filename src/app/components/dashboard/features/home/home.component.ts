@@ -12,8 +12,8 @@ import {
   EmailAuthProvider,
 } from "@angular/fire/auth"
 import Swal from "sweetalert2"
-import { UsersService, type AuthProvider } from "../../../auth/data-access/users.service"
-import { TaskService } from "../task.service"
+import { UsersService, type AuthProvider } from "../../../auth/data-access/users/users.service"
+import { TaskService } from "../../data-access/task/task.service"
 import { TableComponent } from "../ui/table/table.component"
 import { toast } from "ngx-sonner"
 import { Timestamp } from "@angular/fire/firestore"

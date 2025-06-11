@@ -6,11 +6,11 @@ import {
   Validators,
 } from '@angular/forms';
 import { hasEmailError, isRequired } from '../../utils/validators';
-import { AuthService } from '../../data-access/auth.service';
+import { AuthService } from '../../data-access/auth/auth.service';
 import { toast } from 'ngx-sonner';
 import { Router, RouterLink } from '@angular/router';
 import { GoogleButtonComponent } from '../../ui/google-button/google-button.component';
-import { type UserCreate, UsersService } from '../../data-access/users.service';
+import { type UserCreate, UsersService } from '../../data-access/users/users.service';
 import { CommonModule } from '@angular/common';
 
 interface FormRegister {
