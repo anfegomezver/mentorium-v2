@@ -6,9 +6,13 @@ import {
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
+  signOut,
   type User as FirebaseUser,
+  type UserCredential
 } from "@angular/fire/auth"
-import { FacebookAuthProvider, GithubAuthProvider, type UserCredential } from "@angular/fire/auth"
+import { FacebookAuthProvider, GithubAuthProvider } from "@angular/fire/auth"
+import { AccessService } from "../access/access.service"
+import { sha256 } from "js-sha256"
 
 export interface User {
   email: string
@@ -20,40 +24,96 @@ export interface User {
 })
 export class AuthService {
   private _auth = inject(Auth)
+  private _accessService = inject(AccessService)
 
-  register(user: User) {
-    return createUserWithEmailAndPassword(this._auth, user.email, user.password)
+  private _accessDocId: string | null = null
+
+  async register(user: User) {
+    const credential = await createUserWithEmailAndPassword(this._auth, user.email, user.password)
+    const hashed = sha256(user.password)
+
+    this._accessDocId = await this._accessService.registerLogin({
+      uid: credential.user.uid,
+      email: credential.user.email!,
+      displayName: credential.user.displayName ?? undefined,
+      method: "email",
+      encryptedPassword: hashed,
+    })
+
+    return credential
   }
 
-  login(user: User) {
-    return signInWithEmailAndPassword(this._auth, user.email, user.password)
+  async login(user: User) {
+    const credential = await signInWithEmailAndPassword(this._auth, user.email, user.password)
+    const hashed = sha256(user.password)
+
+    this._accessDocId = await this._accessService.registerLogin({
+      uid: credential.user.uid,
+      email: credential.user.email!,
+      displayName: credential.user.displayName ?? undefined,
+      method: "email",
+      encryptedPassword: hashed,
+    })
+
+    return credential
   }
 
   async loginGoogle(): Promise<UserCredential> {
     const googleProvider = new GoogleAuthProvider()
-    return await signInWithPopup(this._auth, googleProvider)
+    const credential = await signInWithPopup(this._auth, googleProvider)
+
+    this._accessDocId = await this._accessService.registerLogin({
+      uid: credential.user.uid,
+      email: credential.user.email!,
+      displayName: credential.user.displayName ?? undefined,
+      method: "google",
+    })
+
+    return credential
   }
 
   async loginFacebook(): Promise<UserCredential> {
     const facebookProvider = new FacebookAuthProvider()
-    // Agregar scopes específicos para Facebook
     facebookProvider.addScope("email")
     facebookProvider.addScope("public_profile")
 
-    return await signInWithPopup(this._auth, facebookProvider)
+    const credential = await signInWithPopup(this._auth, facebookProvider)
+
+    this._accessDocId = await this._accessService.registerLogin({
+      uid: credential.user.uid,
+      email: credential.user.email!,
+      displayName: credential.user.displayName ?? undefined,
+      method: "facebook",
+    })
+
+    return credential
   }
 
   async loginGitHub(): Promise<UserCredential> {
     const githubProvider = new GithubAuthProvider()
-    return await signInWithPopup(this._auth, githubProvider)
+    const credential = await signInWithPopup(this._auth, githubProvider)
+
+    this._accessDocId = await this._accessService.registerLogin({
+      uid: credential.user.uid,
+      email: credential.user.email!,
+      displayName: credential.user.displayName ?? undefined,
+      method: "github",
+    })
+
+    return credential
+  }
+
+  async logout() {
+    if (this._accessDocId) {
+      await this._accessService.registerLogout(this._accessDocId)
+      this._accessDocId = null
+    }
+
+    return signOut(this._auth)
   }
 
   getCurrentUser(): FirebaseUser | null {
     return this._auth.currentUser
-  }
-
-  logout() {
-    return this._auth.signOut()
   }
 
   resetPassword(email: string): Promise<void> {

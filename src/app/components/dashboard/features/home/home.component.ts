@@ -17,6 +17,7 @@ import { TaskService } from "../../data-access/task/task.service"
 import { TableComponent } from "../ui/table/table.component"
 import { toast } from "ngx-sonner"
 import { Timestamp } from "@angular/fire/firestore"
+import { AccessService } from "../../../auth/data-access/access/access.service";
 
 @Component({
   selector: "app-home",
@@ -41,12 +42,25 @@ export class HomeComponent implements OnInit, OnDestroy {
   private alertRunning = false
   private eventListenersAdded = false
 
+  private accessService = inject(AccessService);
   ngOnInit(): void {
     onAuthStateChanged(this.auth, async (user) => {
       if (user?.email) {
         this.currentUser = user
         this.email = user.email
-        await this.loadUserByEmail(user.email)
+        await this.loadUserByEmail(user.email);
+
+        if (!localStorage.getItem("accessDocId")) {
+    const accessDocId = await this.accessService.registerLogin({
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName ?? undefined,
+      method: user.providerData[0]?.providerId || "unknown",
+      encryptedPassword: undefined // o como estés manejando la encriptación
+    });
+
+    localStorage.setItem("accessDocId", accessDocId);
+  }
 
         if (!this.alertRunning) {
           this.startInactivityTimer()
@@ -55,9 +69,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     })
   }
 
-  ngOnDestroy(): void {
-    this.stopInactivityTimer()
-  }
+  async ngOnDestroy(): Promise<void> {
+  this.stopInactivityTimer();
+
+  
+}
+
 
   private async loadUserByEmail(email: string): Promise<void> {
     try {
@@ -399,6 +416,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.stopInactivityTimer()
     localStorage.removeItem(this.LAST_ACTIVITY_KEY)
     localStorage.removeItem("alertRunning")
+
+    const docId = localStorage.getItem("accessDocId");
+  if (docId) {
+    await this.accessService.registerLogout(docId);
+    localStorage.removeItem("accessDocId");
+  }
 
     await this.auth.signOut()
     toast.success("Hasta luego")
