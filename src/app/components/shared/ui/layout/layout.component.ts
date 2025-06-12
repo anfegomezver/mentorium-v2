@@ -11,44 +11,42 @@ import { Auth, onAuthStateChanged } from '@angular/fire/auth';
   selector: 'app-layout',
   imports: [RouterModule, RouterLink, CommonModule],
   standalone: true,
-  templateUrl: './layout.component.html',
+  templateUrl: './layout.component.html'
 })
 export default class LayoutComponent implements OnInit, OnDestroy {
   private _authState = inject(AuthStateService);
   private _router = inject(Router);
   private accessService = inject(AccessService);
   private auth = inject(Auth);
-
-  private readonly LAST_ACTIVITY_KEY = 'lastActivityTimestamp';
+  
   private inactivityTimeoutId: any = null;
-  private readonly INACTIVITY_LIMIT_MS = 5 * 1000; //TIEMPO DE INACTIVIDAD - SE AJUSTA A GUSTO PARA PRUEBAS
+  private readonly INACTIVITY_LIMIT_MS = 30 * 1000; //TIEMPO DE INACTIVIDAD - SE AJUSTA PARA PRUEBAS
   private alertRunning = false;
-  private eventListenersAdded = false;
   private isAlertVisible = false;
+  private lastActivityTime = 0;
+  private initialAuthCheck = false;
 
   ngOnInit(): void {
+    this.startTimer();
+    
     onAuthStateChanged(this.auth, async (user) => {
-      if (user?.email) {
-        if (!this.alertRunning) {
-          this.startInactivityTimer();
-        }
+      if (!this.initialAuthCheck) {
+        this.initialAuthCheck = true;
+        return;
+      }
+      if (!user?.email && this.alertRunning) {
+        this.stopTimer();
+        this._router.navigateByUrl('/auth/login');
       }
     });
-
-    const wasAlertRunning = localStorage.getItem('alertRunning') === 'true';
-    if (wasAlertRunning) {
-      this.startInactivityTimer();
-    }
   }
 
   ngOnDestroy(): void {
-    this.stopInactivityTimer();
+    this.stopTimer();
   }
 
   async logOut() {
-    this.stopInactivityTimer();
-    localStorage.removeItem('lastActivityTimestamp');
-    localStorage.removeItem('alertRunning');
+    this.stopTimer();
 
     const docId = localStorage.getItem('docId');
     if (docId) {
@@ -62,25 +60,20 @@ export default class LayoutComponent implements OnInit, OnDestroy {
     this._router.navigateByUrl('/auth/login');
   }
 
-  private startInactivityTimer(): void {
-    if (this.alertRunning) return;
-
-    this.alertRunning = true;
-    localStorage.setItem('alertRunning', 'true');
-
-    this.updateLastActivity();
-
-    if (!this.eventListenersAdded) {
-      this.addEventListeners();
-      this.eventListenersAdded = true;
+  private startTimer(): void {
+    if (this.alertRunning) {
+      return;
     }
-    this.scheduleInactivityCheck();
+    this.alertRunning = true;
+    this.lastActivityTime = Date.now();
+    
+    this.addEventListeners();
+    this.scheduleCheck();
   }
 
-  private stopInactivityTimer(): void {
+  private stopTimer(): void {
     this.alertRunning = false;
     this.isAlertVisible = false;
-    localStorage.removeItem('alertRunning');
 
     if (this.inactivityTimeoutId) {
       clearTimeout(this.inactivityTimeoutId);
@@ -88,38 +81,27 @@ export default class LayoutComponent implements OnInit, OnDestroy {
     }
 
     this.removeEventListeners();
-    this.eventListenersAdded = false;
   }
 
   private addEventListeners(): void {
-    window.addEventListener('mousemove', this.handleUserActivity);
-    window.addEventListener('keydown', this.handleUserActivity);
-    window.addEventListener('click', this.handleUserActivity);
-    window.addEventListener('scroll', this.handleUserActivity);
-    window.addEventListener('touchstart', this.handleUserActivity);
+    document.addEventListener('mousemove', this.handleActivity);
+    document.addEventListener('keydown', this.handleActivity);
+    document.addEventListener('click', this.handleActivity);
   }
 
   private removeEventListeners(): void {
-    window.removeEventListener('mousemove', this.handleUserActivity);
-    window.removeEventListener('keydown', this.handleUserActivity);
-    window.removeEventListener('click', this.handleUserActivity);
-    window.removeEventListener('scroll', this.handleUserActivity);
-    window.removeEventListener('touchstart', this.handleUserActivity);
+    document.removeEventListener('mousemove', this.handleActivity);
+    document.removeEventListener('keydown', this.handleActivity);
+    document.removeEventListener('click', this.handleActivity);
   }
 
-  private handleUserActivity = (): void => {
+  private handleActivity = (): void => {
     if (!this.alertRunning || this.isAlertVisible) return;
-
-    this.updateLastActivity();
-    this.scheduleInactivityCheck();
+    this.lastActivityTime = Date.now();
+    this.scheduleCheck();
   };
 
-  private updateLastActivity(): void {
-    const now = Date.now();
-    localStorage.setItem(this.LAST_ACTIVITY_KEY, now.toString());
-  }
-
-  private scheduleInactivityCheck(): void {
+  private scheduleCheck(): void {
     if (this.inactivityTimeoutId) {
       clearTimeout(this.inactivityTimeoutId);
     }
@@ -130,66 +112,51 @@ export default class LayoutComponent implements OnInit, OnDestroy {
   }
 
   private async checkInactivity(): Promise<void> {
-    if (!this.alertRunning || this.isAlertVisible) return;
-
-    const lastActivity = Number.parseInt(
-      localStorage.getItem(this.LAST_ACTIVITY_KEY) || '0',
-      10
-    );
-    const timeElapsed = Date.now() - lastActivity;
+    if (!this.alertRunning || this.isAlertVisible) {
+      return;
+    }
+    const timeElapsed = Date.now() - this.lastActivityTime;
 
     if (timeElapsed >= this.INACTIVITY_LIMIT_MS) {
-      await this.showInactivityAlert();
+      await this.showAlert();
     } else {
-      const remainingTime = this.INACTIVITY_LIMIT_MS - timeElapsed;
+      const remaining = this.INACTIVITY_LIMIT_MS - timeElapsed;
       this.inactivityTimeoutId = setTimeout(() => {
         this.checkInactivity();
-      }, remainingTime);
+      }, remaining);
     }
   }
 
-  private async showInactivityAlert(): Promise<void> {
-    if (this.isAlertVisible) return;
-
+  private async showAlert(): Promise<void> {
+    if (this.isAlertVisible) {
+      return;
+    }
     this.isAlertVisible = true;
-
+    
     if (this.inactivityTimeoutId) {
       clearTimeout(this.inactivityTimeoutId);
       this.inactivityTimeoutId = null;
     }
 
-    const user = this.auth.currentUser;
-
     try {
-      if (Swal.isVisible()) {
-        Swal.close();
-        await new Promise((resolve) => setTimeout(resolve, 100));
-      }
-
+      const user = this.auth.currentUser;
+      
       const result = await Swal.fire({
-        title: `¿Sigues ahí?`,
-        text: `No se detectó actividad. Usuario logeado: ${
-          user?.displayName ?? ''
-        }`,
+        title: '¿Sigues ahí?',
+        text: `No se detectó actividad. Usuario: ${user?.displayName ?? 'Sin nombre'}`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Sí, continuar',
         cancelButtonText: 'Cerrar sesión',
         allowOutsideClick: false,
-        allowEscapeKey: false,
-        timer: undefined,
-        timerProgressBar: false,
-        backdrop: true,
-        heightAuto: false,
+        allowEscapeKey: false
       });
-
       this.isAlertVisible = false;
 
       if (result.isConfirmed) {
-        this.updateLastActivity();
-        localStorage.setItem('alertRunning', 'true');
-        this.scheduleInactivityCheck();
-      } else if (result.isDismissed) {
+        this.lastActivityTime = Date.now();
+        this.scheduleCheck();
+      } else {
         await this.logOut();
       }
     } catch (error) {
