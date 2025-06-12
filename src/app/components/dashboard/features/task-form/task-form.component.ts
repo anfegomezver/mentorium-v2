@@ -1,10 +1,10 @@
 import { AfterViewInit, Component, effect, inject, input } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TaskCreate, TaskService } from '../task.service';
+import { TaskCreate, TaskService } from '../../data-access/task/task.service';
 import { toast } from 'ngx-sonner';
 import { RouterLink } from '@angular/router';
 import { Router } from '@angular/router';
-import type { Task } from '../task.service';
+import type { Task } from '../../data-access/task/task.service';
 
 
 @Component({

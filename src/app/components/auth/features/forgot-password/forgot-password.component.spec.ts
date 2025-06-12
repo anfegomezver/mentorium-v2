@@ -5,7 +5,7 @@ import {
   ReactiveFormsModule,
   FormControl,
 } from '@angular/forms';
-import { AuthService } from '../../data-access/auth.service';
+import { AuthService } from '../../data-access/auth/auth.service';
 import { toast } from 'ngx-sonner';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';

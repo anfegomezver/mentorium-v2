@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, input } from '@angular/core';
-import { Task } from '../../task.service';
+import { Task } from '../../../data-access/task/task.service';
 import { RouterLink } from '@angular/router';
 import Swal from 'sweetalert2';
 
