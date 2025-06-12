@@ -1,4 +1,4 @@
-import { inject, Injectable } from "@angular/core";
+import { inject, Injectable } from '@angular/core';
 import {
   Firestore,
   addDoc,
@@ -7,10 +7,10 @@ import {
   updateDoc,
   doc,
   Timestamp,
-} from "@angular/fire/firestore";
+} from '@angular/fire/firestore';
 
 export interface Access {
-  uid: string;
+  uidUser: string;
   email: string;
   displayName?: string | null;
   method: string;
@@ -20,27 +20,27 @@ export interface Access {
 }
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class AccessService {
   private _firestore = inject(Firestore);
-  private _collection = collection(this._firestore, "access");
+  private _collection = collection(this._firestore, 'access');
 
   async registerLogin({
-    uid,
+    uidUser,
     email,
     displayName,
     method,
     encryptedPassword,
   }: {
-    uid: string;
+    uidUser: string;
     email: string;
     displayName?: string;
     method: string;
     encryptedPassword?: string;
   }): Promise<string> {
     const docRef = await addDoc(this._collection, {
-      uid,
+      uidUser,
       email,
       displayName: displayName || null,
       method,
@@ -53,10 +53,9 @@ export class AccessService {
   }
 
   async registerLogout(docId: string): Promise<void> {
-    const accessRef = doc(this._firestore, "access", docId);
+    const accessRef = doc(this._firestore, 'access', docId);
     await updateDoc(accessRef, {
       logoutAt: serverTimestamp(),
     });
   }
-  
 }
