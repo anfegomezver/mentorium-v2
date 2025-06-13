@@ -6,17 +6,20 @@ import {
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
-  signOut,
-  type User as FirebaseUser,
   type UserCredential,
 } from '@angular/fire/auth';
 import { FacebookAuthProvider, GithubAuthProvider } from '@angular/fire/auth';
 import { AccessService } from '../access/access.service';
 import { sha256 } from 'js-sha256';
+import { updateProfile } from '@angular/fire/auth';
 
 export interface User {
   email: string;
   password: string;
+}
+
+export interface RegisterOptions {
+  displayName?: string;
 }
 
 @Injectable({
@@ -27,19 +30,26 @@ export class AuthService {
   private _accessService = inject(AccessService);
   private _accessDocId: string | null = null;
 
-  async register(user: User) {
+  async register(user: User, options?: RegisterOptions) {
     const credential = await createUserWithEmailAndPassword(
       this._auth,
       user.email,
       user.password
     );
 
+    if (options?.displayName && credential.user) {
+      await updateProfile(credential.user, {
+        displayName: options.displayName,
+      });
+    }
+
     const hashed = sha256(user.password);
 
     this._accessDocId = await this._accessService.registerLogin({
       uidUser: credential.user.uid,
       email: credential.user.email!,
-      displayName: credential.user.displayName ?? undefined,
+      displayName:
+        options?.displayName ?? credential.user.displayName ?? undefined,
       method: 'email',
       encryptedPassword: hashed,
     });
