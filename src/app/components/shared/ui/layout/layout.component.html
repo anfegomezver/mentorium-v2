@@ -12,11 +12,19 @@
     </a>
     
     <a 
+      routerLink="/dashboard/users" 
+      class="bg-[#11619e] hover:bg-[hsl(206,100%,62%)] rounded-lg py-2 px-4 transition-colors duration-300 text-sm font-medium"
+    >
+      Lista Usuarios
+    </a>
+    
+    <a 
       routerLink="/dashboard/new" 
       class="bg-green-600 hover:bg-green-700 rounded-lg py-2 px-4 transition-colors duration-300 text-sm font-medium"
     >
       Nueva Tarea
     </a>
+
     
     <button 
       (click)="logOut()" 
