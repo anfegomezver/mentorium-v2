@@ -1,205 +1,439 @@
 <section class="mx-auto w-full max-w-screen-xl px-4">
-  <section class="mx-auto w-full max-w-screen-xl px-4">
-    <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-200">
+  <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <div class="flex justify-between items-center">
         <h3 class="text-lg font-semibold text-gray-800">Gestión de Usuarios</h3>
-        <div class="flex gap-4 mt-4">
-          <input type="date" [(ngModel)]="searchDate" class="border rounded px-3 py-1 text-sm" />
-          <button (click)="consultarPorFecha()"
-            class="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700">Consultar</button>
+
+        <button
+          (click)="toggleAdvancedSearch()"
+          class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+        >
+          <span>{{
+            showAdvancedSearch ? "Ocultar búsqueda" : "Búsqueda avanzada"
+          }}</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            [class.rotate-180]="showAdvancedSearch"
+            class="transition-transform duration-300"
+          >
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+      </div>
+
+      <div
+        class="overflow-hidden transition-all duration-300 ease-in-out"
+        [class.max-h-0]="!showAdvancedSearch"
+        [class.max-h-96]="showAdvancedSearch"
+        [class.opacity-0]="!showAdvancedSearch"
+        [class.opacity-100]="showAdvancedSearch"
+        [class.mt-0]="!showAdvancedSearch"
+        [class.mt-4]="showAdvancedSearch"
+      >
+        <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+          <h4 class="text-md font-medium text-gray-700 mb-3">
+            Búsqueda Avanzada
+          </h4>
+
+          <div class="flex flex-wrap gap-4 mb-3">
+            <div class="flex items-center">
+              <input
+                type="checkbox"
+                id="searchByName"
+                [(ngModel)]="searchByName"
+                (ngModelChange)="toggleSearchOption('name')"
+                class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+              />
+              <label for="searchByName" class="ml-2 text-sm text-gray-700"
+                >Buscar por nombre</label
+              >
+            </div>
+
+            <div class="flex items-center">
+              <input
+                type="checkbox"
+                id="searchByEmail"
+                [(ngModel)]="searchByEmail"
+                (ngModelChange)="toggleSearchOption('email')"
+                class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+              />
+              <label for="searchByEmail" class="ml-2 text-sm text-gray-700"
+                >Buscar por correo</label
+              >
+            </div>
+
+            <div class="flex items-center">
+              <input
+                type="checkbox"
+                id="searchByDate"
+                [(ngModel)]="searchByDate"
+                (ngModelChange)="applyFilters()"
+                class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+              />
+              <label for="searchByDate" class="ml-2 text-sm text-gray-700"
+                >Buscar por fecha</label
+              >
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-4 items-end">
+            <div
+              class="flex-grow max-w-xs transition-all duration-300 ease-in-out overflow-hidden"
+              [class.opacity-0]="!(searchByName || searchByEmail)"
+              [class.opacity-100]="searchByName || searchByEmail"
+              [class.max-h-0]="!(searchByName || searchByEmail)"
+              [class.max-h-24]="searchByName || searchByEmail"
+              [class.mt-0]="!(searchByName || searchByEmail)"
+              [class.mb-0]="!(searchByName || searchByEmail)"
+              [class.mt-1]="searchByName || searchByEmail"
+              [class.mb-1]="searchByName || searchByEmail"
+            >
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                {{ searchByName ? "Nombre" : "Correo" }}
+              </label>
+              <div class="relative">
+                <input
+                  type="text"
+                  [(ngModel)]="searchText"
+                  (ngModelChange)="applyFilters()"
+                  placeholder="Ingrese texto para buscar"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md pr-8 focus:outline-none"
+                />
+                <button
+                  *ngIf="searchText"
+                  (click)="clearSearchText()"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                  type="button"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="size-6 cursor-pointer"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M6 18 18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div
+              class="flex-grow max-w-xs transition-all duration-300 ease-in-out overflow-hidden"
+              [class.opacity-0]="!searchByDate"
+              [class.opacity-100]="searchByDate"
+              [class.max-h-0]="!searchByDate"
+              [class.max-h-24]="searchByDate"
+              [class.mt-0]="!searchByDate"
+              [class.mb-0]="!searchByDate"
+              [class.mt-1]="searchByDate"
+              [class.mb-1]="searchByDate"
+            >
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Fecha</label
+              >
+              <div class="relative">
+                <input
+                  type="date"
+                  [(ngModel)]="searchDate"
+                  (ngModelChange)="applyFilters()"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md pr-8"
+                />
+                <button
+                  *ngIf="searchDate"
+                  (click)="clearSearchDate()"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                  type="button"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="size-6 cursor-pointer"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M6 18 18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="overflow-x-auto">
-        <table class="w-full">
-          <!-- cabecera de tabla existente -->
-          <!-- cuerpo de tabla existente -->
-        </table>
-      </div>
-    </div>
-
-    <div *ngIf="showModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-      <div class="bg-white max-h-[80vh] w-[90%] md:w-[70%] rounded-lg overflow-auto shadow-lg p-6 relative">
-        <button (click)="cerrarModal()" class="absolute top-3 right-3 text-gray-600 hover:text-red-500">
-          ✕
+      <div class="flex gap-4 mt-4">
+        <input
+          type="date"
+          [(ngModel)]="consultaFecha"
+          class="border rounded px-3 py-1 text-sm"
+        />
+        <button
+          (click)="consultarPorFecha()"
+          class="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
+        >
+          Consultar
         </button>
-        <h2 class="text-lg font-bold mb-4">Resultados por Fecha</h2>
-        <table class="w-full text-sm text-left">
-          <thead class="bg-gray-100">
-            <tr>
-              <th class="p-2">Nombre</th>
-              <th class="p-2">Email</th>
-              <th class="p-2">Método</th>
-              <th class="p-2">Login</th>
-              <th class="p-2">Logout</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let user of modalResults" class="border-t">
-              <td class="p-2">{{ user.displayName || 'Sin nombre' }}</td>
-              <td class="p-2">{{ user.email }}</td>
-              <td class="p-2">{{ user.method | titlecase }}</td>
-              <td class="p-2">{{ user.loginAt?.toDate() | date:'medium' }}</td>
-              <td class="p-2">{{ user.logoutAt?.toDate() | date:'medium' }}</td>
-            </tr>
-          </tbody>
-        </table>
       </div>
     </div>
-  </section>
 
-  <section class="mx-auto mt-6 w-full max-w-screen-xl px-4">
-    <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-200">
-        <h3 class="text-lg font-semibold text-gray-800">Gestión de Usuarios</h3>
-      </div>
-
-      <div class="overflow-x-auto">
-        <table class="w-full">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
-                (click)="sortData('displayName')">
-                <div class="flex items-center">
-                  Nombre
-                  <span class="ml-1">
-                    @if (sortColumn === 'displayName') {
-                    @if (sortDirection === 'asc') {
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd"
-                        d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
-                        clip-rule="evenodd" />
-                    </svg>
-                    } @else {
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd"
-                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                        clip-rule="evenodd" />
-                    </svg>
-                    }
-                    }
-                  </span>
-                </div>
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
-                (click)="sortData('email')">
-                <div class="flex items-center">
-                  Email
-                  <span class="ml-1">
-                    @if (sortColumn === 'email') {
-                    @if (sortDirection === 'asc') {
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd"
-                        d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
-                        clip-rule="evenodd" />
-                    </svg>
-                    } @else {
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd"
-                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                        clip-rule="evenodd" />
-                    </svg>
-                    }
-                    }
-                  </span>
-                </div>
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Método</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
-                (click)="sortData('loginAt')">
-                <div class="flex items-center">
-                  Último Login
-                  <span class="ml-1">
-                    @if (sortColumn === 'loginAt') {
-                    @if (sortDirection === 'asc') {
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd"
-                        d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
-                        clip-rule="evenodd" />
-                    </svg>
-                    } @else {
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd"
-                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                        clip-rule="evenodd" />
-                    </svg>
-                    }
-                    }
-                  </span>
-                </div>
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
-                (click)="sortData('logoutAt')">
-                <div class="flex items-center">
-                  Último Logout
-                  <span class="ml-1">
-                    @if (sortColumn === 'logoutAt') {
-                    @if (sortDirection === 'asc') {
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd"
-                        d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
-                        clip-rule="evenodd" />
-                    </svg>
-                    } @else {
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd"
-                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                        clip-rule="evenodd" />
-                    </svg>
-                    }
-                    }
-                  </span>
-                </div>
-              </th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200">
-            @if (access$ | async; as access) {
-            @if (sortedAccess.length > 0) {
-            @for (user of sortedAccess; track user.uidUser) {
-            <tr class="hover:bg-gray-50">
-              <td class="px-6 py-4 text-sm text-gray-900">{{ user.displayName || 'Sin nombre' }}</td>
-              <td class="px-6 py-4 text-sm text-gray-900">{{ user.email }}</td>
-              <td class="px-6 py-4">
-                <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full"
-                  [class.bg-blue-100]="user.method === 'email'" [class.text-blue-800]="user.method === 'email'"
-                  [class.bg-green-100]="user.method === 'google'" [class.text-green-800]="user.method === 'google'"
-                  [class.bg-purple-100]="user.method === 'github'" [class.text-purple-800]="user.method === 'github'">
-                  {{ user.method || 'desconocido' | titlecase }}
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-gray-50">
+          <tr>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
+              (click)="sortData('displayName')"
+            >
+              <div class="flex items-center">
+                Nombre
+                <span class="ml-1">
+                  @if (sortColumn === 'displayName') { @if (sortDirection ===
+                  'asc') {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                  } @else {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                  } }
                 </span>
-              </td>
-              <td class="px-6 py-4 text-sm text-gray-900">
-                @if (user.loginAt) {
-                {{ user.loginAt.toDate() | date:'medium' }}
-                } @else {
-                Nunca
-                }
-              </td>
-              <td class="px-6 py-4 text-sm text-gray-900">
-                @if (user.logoutAt) {
-                {{ user.logoutAt.toDate() | date:'medium' }}
-                } @else {
-                Nunca
-                }
-              </td>
-            </tr>
-            }
-            } @else {
-            <tr>
-              <td colspan="6" class="px-6 py-8 text-center text-gray-500">
-                No hay usuarios registrados
-              </td>
-            </tr>
-            }
-            } @else {
-            <tr>
-              <td colspan="6" class="px-6 py-8 text-center text-gray-500">
-                Cargando usuarios...
-              </td>
-            </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+              </div>
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
+              (click)="sortData('email')"
+            >
+              <div class="flex items-center">
+                Email
+                <span class="ml-1">
+                  @if (sortColumn === 'email') { @if (sortDirection === 'asc') {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                  } @else {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                  } }
+                </span>
+              </div>
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+            >
+              Método
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
+              (click)="sortData('loginAt')"
+            >
+              <div class="flex items-center">
+                Último Login
+                <span class="ml-1">
+                  @if (sortColumn === 'loginAt') { @if (sortDirection === 'asc')
+                  {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                  } @else {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                  } }
+                </span>
+              </div>
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
+              (click)="sortData('logoutAt')"
+            >
+              <div class="flex items-center">
+                Último Logout
+                <span class="ml-1">
+                  @if (sortColumn === 'logoutAt') { @if (sortDirection ===
+                  'asc') {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                  } @else {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                  } }
+                </span>
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          @if (filteredAccess.length > 0) { @for (user of filteredAccess; track
+          user.uidUser) {
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 text-sm text-gray-900">
+              {{ user.displayName || "Sin nombre" }}
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-900">{{ user.email }}</td>
+            <td class="px-6 py-4">
+              <span
+                class="inline-flex px-2 py-1 text-xs font-medium rounded-full"
+                [class.bg-blue-100]="user.method === 'email'"
+                [class.text-blue-800]="user.method === 'email'"
+                [class.bg-green-100]="user.method === 'google'"
+                [class.text-green-800]="user.method === 'google'"
+                [class.bg-purple-100]="user.method === 'github'"
+                [class.text-purple-800]="user.method === 'github'"
+              >
+                {{ user.method || "desconocido" | titlecase }}
+              </span>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-900">
+              @if (user.loginAt) {
+              {{ user.loginAt.toDate() | date : "medium" }}
+              } @else { Nunca }
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-900">
+              @if (user.logoutAt) {
+              {{ user.logoutAt.toDate() | date : "medium" }}
+              } @else { Nunca }
+            </td>
+          </tr>
+          } } @else {
+          <tr>
+            <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+              No hay usuarios que coincidan con los criterios de búsqueda
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
     </div>
-  </section>
+  </div>
+
+  <div
+    *ngIf="showModal"
+    class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center"
+  >
+    <div
+      class="bg-white max-h-[80vh] w-[90%] md:w-[70%] rounded-lg overflow-auto shadow-lg p-6 relative"
+    >
+      <button
+        (click)="cerrarModal()"
+        class="absolute top-3 right-3 text-gray-600 hover:text-red-500"
+      >
+        ✕
+      </button>
+      <h2 class="text-lg font-bold mb-4">Resultados por Fecha</h2>
+      <table class="w-full text-sm text-left">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="p-2">Nombre</th>
+            <th class="p-2">Email</th>
+            <th class="p-2">Método</th>
+            <th class="p-2">Login</th>
+            <th class="p-2">Logout</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of modalResults" class="border-t">
+            <td class="p-2">{{ user.displayName || "Sin nombre" }}</td>
+            <td class="p-2">{{ user.email }}</td>
+            <td class="p-2">{{ user.method | titlecase }}</td>
+            <td class="p-2">{{ user.loginAt?.toDate() | date : "medium" }}</td>
+            <td class="p-2">{{ user.logoutAt?.toDate() | date : "medium" }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
