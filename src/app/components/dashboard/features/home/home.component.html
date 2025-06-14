@@ -13,25 +13,30 @@
       </div>
 
       <a routerLink="/dashboard/new"
-        class="text-white bg-[#3a8a9c] hover:bg-[#2a5f6b] rounded-xl py-3 px-6 transition-all duration-300 cursor-pointer font-semibold text-[18px] shadow-lg hover:shadow-xl">
-        ¡Añade una nueva tarea!
+        class="cursor-pointer text-white bg-[#3a8a9c] hover:bg-[#2a5f6b] rounded-xl py-3 px-6 transition-all duration-300 font-semibold text-[18px] shadow-lg hover:shadow-xl">
+        Nueva tarea
       </a>
     </div>
   </div>
 
   <div class="mb-6 bg-gradient-to-r from-[#6bb6c7]/10 to-[#3a8a9c]/10 rounded-xl border border-[#6bb6c7]/30 p-6">
     <h2 class="text-lg font-bold text-[#2a5f6b] mb-3">Vincular cuentas</h2>
-    <p class="text-sm text-gray-600 mb-4 font-medium">¡Conecta múltiples proveedores para acceder con diferentes
-      métodos!</p>
+    <p class="text-sm text-gray-600 mb-4 font-medium">Conecta múltiples proveedores para acceder con diferentes métodos
+    </p>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
 
-      <button (click)="linkGoogle()" [disabled]="isProviderLinked('google.com')"
+      <button (click)="linkGoogle()" [disabled]="isProviderLinked('google.com') || isLoadingGoogle()"
         [class]="isProviderLinked('google.com') 
           ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200' 
           : 'bg-white hover:bg-[#6bb6c7]/10 text-gray-700 hover:shadow-lg border-[#6bb6c7] hover:border-[#3a8a9c] cursor-pointer'"
-        class="flex items-center px-4 py-3 border rounded-lg transition-all duration-300 font-medium">
-        <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24">
+        class="flex items-center px-4 py-3 border rounded-lg transition-all duration-300 font-medium disabled:opacity-50"
+        [title]="isProviderLinked('google.com') 
+          ? 'Google ya está vinculado a tu cuenta' 
+          : (isLoadingGoogle() ? 'Conectando con Google...' : 'Vincular tu cuenta de Google')">
+        <div *ngIf="isLoadingGoogle()"
+          class="animate-spin rounded-full h-5 w-5 border-2 border-[#3a8a9c] border-t-transparent mr-2"></div>
+        <svg *ngIf="!isLoadingGoogle()" class="w-5 h-5 mr-2" viewBox="0 0 24 24">
           <path fill="#4285F4"
             d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
           <path fill="#34A853"
@@ -43,70 +48,87 @@
         </svg>
         <div class="text-left">
           <div class="text-sm font-semibold">
-            {{ isProviderLinked('google.com') ? '✅ Google' : 'Google' }}
+            {{ isProviderLinked('google.com') ? '✅ Google' : (isLoadingGoogle() ? 'Conectando...' : 'Google') }}
           </div>
           <div class="text-xs text-gray-500 font-medium">
-            {{ isProviderLinked('google.com') ? 'Conectado' : 'Conectar' }}
+            {{ isProviderLinked('google.com') ? 'Conectado' : (isLoadingGoogle() ? 'Procesando' : 'Conectar') }}
           </div>
         </div>
       </button>
 
-      <button (click)="linkGitHub()" [disabled]="isProviderLinked('github.com')"
+      <button (click)="linkGitHub()" [disabled]="isProviderLinked('github.com') || isLoadingGitHub()"
         [class]="isProviderLinked('github.com') 
           ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200' 
           : 'bg-white hover:bg-[#6bb6c7]/10 text-gray-700 hover:shadow-lg border-[#6bb6c7] hover:border-[#3a8a9c] cursor-pointer'"
-        class="flex items-center px-4 py-3 border rounded-lg transition-all duration-300 font-medium">
-        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+        class="flex items-center px-4 py-3 border rounded-lg transition-all duration-300 font-medium disabled:opacity-50"
+        [title]="isProviderLinked('github.com') 
+          ? 'GitHub ya está vinculado a tu cuenta' 
+          : (isLoadingGitHub() ? 'Conectando con GitHub...' : 'Vincular tu cuenta de GitHub')">
+        <div *ngIf="isLoadingGitHub()"
+          class="animate-spin rounded-full h-5 w-5 border-2 border-[#3a8a9c] border-t-transparent mr-2"></div>
+        <svg *ngIf="!isLoadingGitHub()" class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
           <path
             d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
         </svg>
         <div class="text-left">
           <div class="text-sm font-semibold">
-            {{ isProviderLinked('github.com') ? '✅ GitHub' : 'GitHub' }}
+            {{ isProviderLinked('github.com') ? '✅ GitHub' : (isLoadingGitHub() ? 'Conectando...' : 'GitHub') }}
           </div>
           <div class="text-xs text-gray-500 font-medium">
-            {{ isProviderLinked('github.com') ? 'Conectado' : 'Conectar' }}
+            {{ isProviderLinked('github.com') ? 'Conectado' : (isLoadingGitHub() ? 'Procesando' : 'Conectar') }}
           </div>
         </div>
       </button>
 
-      <button (click)="linkFacebook()" [disabled]="isProviderLinked('facebook.com')"
+      <button (click)="linkFacebook()" [disabled]="isProviderLinked('facebook.com') || isLoadingFacebook()"
         [class]="isProviderLinked('facebook.com') 
           ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200' 
           : 'bg-white hover:bg-[#6bb6c7]/10 text-gray-700 hover:shadow-lg border-[#6bb6c7] hover:border-[#3a8a9c] cursor-pointer'"
-        class="flex items-center px-4 py-3 border rounded-lg transition-all duration-300 font-medium">
-        <svg class="w-5 h-5 mr-2" fill="#1877F2" viewBox="0 0 24 24">
+        class="flex items-center px-4 py-3 border rounded-lg transition-all duration-300 font-medium disabled:opacity-50"
+        [title]="isProviderLinked('facebook.com') 
+          ? 'Facebook ya está vinculado a tu cuenta' 
+          : (isLoadingFacebook() ? 'Conectando con Facebook...' : 'Vincular tu cuenta de Facebook')">
+        <div *ngIf="isLoadingFacebook()"
+          class="animate-spin rounded-full h-5 w-5 border-2 border-[#3a8a9c] border-t-transparent mr-2"></div>
+        <svg *ngIf="!isLoadingFacebook()" class="w-5 h-5 mr-2" fill="#1877F2" viewBox="0 0 24 24">
           <path
-            d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+            d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.325 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
         </svg>
         <div class="text-left">
           <div class="text-sm font-semibold">
-            {{ isProviderLinked('facebook.com') ? '✅ Facebook' : 'Facebook' }}
+            {{ isProviderLinked('facebook.com') ? '✅ Facebook' : (isLoadingFacebook() ? 'Conectando...' : 'Facebook') }}
           </div>
           <div class="text-xs text-gray-500 font-medium">
-            {{ isProviderLinked('facebook.com') ? 'Conectado' : 'Conectar' }}
+            {{ isProviderLinked('facebook.com') ? 'Conectado' : (isLoadingFacebook() ? 'Procesando' : 'Conectar') }}
           </div>
         </div>
       </button>
 
-      <button (click)="linkPassword()" [disabled]="isProviderLinked('password')"
+      <button (click)="linkPassword()" [disabled]="isProviderLinked('password') || isLoadingPassword()"
         [class]="isProviderLinked('password') 
           ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200' 
           : 'bg-white hover:bg-[#6bb6c7]/10 text-gray-700 hover:shadow-lg border-[#6bb6c7] hover:border-[#3a8a9c] cursor-pointer'"
-        class="flex items-center px-4 py-3 border rounded-lg transition-all duration-300 font-medium">
-        <svg xmlns="http://www.w3.org/2000/svg" class="size-5" viewBox="0 0 48 48" fill="none" stroke="currentColor"
-          stroke-linecap="round" stroke-linejoin="round" stroke-width="3">
-          <path
-            d="M7.23 25q.049-.662.1-1.238c.228-2.505 2.235-4.311 4.746-4.446C15.013 19.16 19.576 19 26 19c6.425 0 10.987.16 13.924.316c2.511.135 4.518 1.941 4.745 4.446c.18 1.973.331 4.69.331 8.238s-.152 6.265-.33 8.238c-.228 2.505-2.235 4.312-4.746 4.446q-.657.035-1.424.07" />
-          <path
-            d="m31.532 19.043l-.238-4.052a5.303 5.303 0 0 0-10.587 0l-.239 4.052m18.89.244l-.44-5.283A12 12 0 0 0 26.957 3h-1.916a12 12 0 0 0-11.959 11.004l-.44 5.283M10 44a7 7 0 1 1 6.326-10H31a3 3 0 0 1 3 3v5a3 3 0 1 1-6 0v-2h-1v2a3 3 0 1 1-6 0v-2h-4.674A7 7 0 0 1 10 44m-1-7h2" />
+        class="flex items-center px-4 py-3 border rounded-lg transition-all duration-300 font-medium disabled:opacity-50"
+        [title]="isProviderLinked('password') 
+          ? 'Email/Password ya está configurado en tu cuenta' 
+          : (isLoadingPassword() ? 'Configurando Email/Password...' : 'Configurar email y contraseña')">
+        <div *ngIf="isLoadingPassword()"
+          class="animate-spin rounded-full h-5 w-5 border-2 border-[#3a8a9c] border-t-transparent mr-2"></div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48" class="size-6">
+          <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3">
+            <path
+              d="M7.23 25q.049-.662.1-1.238c.228-2.505 2.235-4.311 4.746-4.446C15.013 19.16 19.576 19 26 19c6.425 0 10.987.16 13.924.316c2.511.135 4.518 1.941 4.745 4.446c.18 1.973.331 4.69.331 8.238s-.152 6.265-.33 8.238c-.228 2.505-2.235 4.312-4.746 4.446q-.657.035-1.424.07" />
+            <path
+              d="m31.532 19.043l-.238-4.052a5.303 5.303 0 0 0-10.587 0l-.239 4.052m18.89.244l-.44-5.283A12 12 0 0 0 26.957 3h-1.916a12 12 0 0 0-11.959 11.004l-.44 5.283M10 44a7 7 0 1 1 6.326-10H31a3 3 0 0 1 3 3v5a3 3 0 1 1-6 0v-2h-1v2a3 3 0 1 1-6 0v-2h-4.674A7 7 0 0 1 10 44m-1-7h2" />
+          </g>
         </svg>
         <div class="ml-2 text-left">
           <div class="text-sm font-semibold">
-            {{ isProviderLinked('password') ? '✅ Email/Password' : 'Email/Password' }}
+            {{ isProviderLinked('password') ? '✅ Email/Password' : (isLoadingPassword() ? 'Configurando...' :
+            'Email/Password') }}
           </div>
           <div class="text-xs text-gray-500 font-medium">
-            {{ isProviderLinked('password') ? 'Configurado' : 'Configurar' }}
+            {{ isProviderLinked('password') ? 'Configurado' : (isLoadingPassword() ? 'Procesando' : 'Configurar') }}
           </div>
         </div>
       </button>

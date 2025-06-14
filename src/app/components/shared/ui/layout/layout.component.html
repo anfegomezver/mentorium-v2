@@ -16,22 +16,14 @@
     class="bg-[#3a8a9c] shadow-xl border-r border-[#2a5f6b] flex flex-col transition-all duration-300">
 
     <div class="border-b border-[#2a5f6b] h-[90px] min-h-[90px] flex flex-col justify-center relative">
-      <div [class]="sidebarCollapsed ? 'flex justify-center items-center' : 'flex items-center'">
-        <img *ngIf="!sidebarCollapsed" src="logo.png" alt="Mentorium Logo"
-          class="size-9 inline-block align-middle ml-2" />
-        <div [class]="sidebarCollapsed ? 'text-center te' : 'pl-3'">
-          <h1 [class]="sidebarCollapsed ? 'text-[28px]' : 'text-2xl'"
-            class="font-bold text-white transition-all duration-300">
-            <span>
-              <img *ngIf="sidebarCollapsed" src="logo.png" alt="Mentorium Logo"
-                class="h-9 inline-block align-middle mr-0.5" />
-              <span *ngIf="!sidebarCollapsed">Mentorium</span>
-            </span>
-          </h1>
-          <p *ngIf="!sidebarCollapsed" class="text-sm text-[#9dd4e0] mt-1 transition-opacity duration-300">
-            Panel de Control
-          </p>
-        </div>
+      <div [class]="sidebarCollapsed ? 'text-center te' : 'pl-3'">
+        <h1 [class]="sidebarCollapsed ? 'text-[28px]' : 'text-2xl'"
+          class="font-bold text-white transition-all duration-300">
+          {{ sidebarCollapsed ? 'M' : 'Mentorium' }}
+        </h1>
+        <p *ngIf="!sidebarCollapsed" class="text-sm text-[#9dd4e0] mt-1 transition-opacity duration-300">
+          Panel de Control
+        </p>
       </div>
 
       <button (click)="toggleSidebar()"
@@ -132,10 +124,27 @@
         </div>
       </div>
     </header>
-    <main class="flex-1 overflow-auto bg-gray-50">
-      <div class="p-6">
+
+    <main class="flex-1 overflow-auto bg-gray-50 flex flex-col">
+      <div class="flex-1 p-6">
         <router-outlet></router-outlet>
       </div>
+
+      <!-- Footer -->
+      <footer class="bg-white border-t border-gray-200 py-4 px-6 mt-auto">
+        <div class="flex items-center justify-center">
+          <div class="flex items-center gap-2 text-gray-600">
+            <img src="logo.png" alt="Mentorium Logo" class="w-6 h-6">
+            <span class="font-semibold text-[#2a5f6b]">Mentorium</span>
+            <span class="text-gray-400">•</span>
+            <span class="text-sm font-medium">v2.0.0</span>
+            <span class="text-gray-400">•</span>
+            <span class="text-sm font-medium">© 2025</span>
+            <span class="text-gray-400">•</span>
+            <span class="text-sm">Todos los derechos reservados</span>
+          </div>
+        </div>
+      </footer>
     </main>
   </div>
 </div>

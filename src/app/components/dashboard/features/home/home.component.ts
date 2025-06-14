@@ -1,4 +1,4 @@
-import { Component, type OnInit, inject } from '@angular/core';
+import { Component, type OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import {
@@ -27,12 +27,18 @@ import { Timestamp } from '@angular/fire/firestore';
   imports: [CommonModule, TableComponent, RouterLink],
   templateUrl: './home.component.html',
 })
-
 export class HomeComponent implements OnInit {
   userProfile: any = null;
   email: string | null = null;
   tasks = inject(TaskService).getTasks;
   currentUser: any = null;
+
+  // Loading states
+  isLoadingGoogle = signal(false);
+  isLoadingFacebook = signal(false);
+  isLoadingGitHub = signal(false);
+  isLoadingPassword = signal(false);
+  isLoadingDelete = signal(false);
 
   private auth = inject(Auth);
   private usersService = inject(UsersService);
@@ -58,9 +64,14 @@ export class HomeComponent implements OnInit {
 
   async deleteTask(id: string): Promise<void> {
     try {
+      this.isLoadingDelete.set(true);
       await this.taskService.delete(id);
+      toast.success('Tarea eliminada correctamente');
     } catch (error) {
       console.error('Error eliminando la tarea:', error);
+      toast.error('Error al eliminar la tarea');
+    } finally {
+      this.isLoadingDelete.set(false);
     }
   }
 
@@ -71,6 +82,8 @@ export class HomeComponent implements OnInit {
     }
 
     try {
+      this.isLoadingGoogle.set(true);
+
       const isAlreadyLinked = await this.usersService.isProviderLinked(
         this.currentUser.uid,
         'google.com'
@@ -97,6 +110,8 @@ export class HomeComponent implements OnInit {
       toast.success('¡Google vinculado exitosamente!');
     } catch (error: any) {
       toast.error('Error al vincular Google');
+    } finally {
+      this.isLoadingGoogle.set(false);
     }
   }
 
@@ -107,6 +122,8 @@ export class HomeComponent implements OnInit {
     }
 
     try {
+      this.isLoadingFacebook.set(true);
+
       const isAlreadyLinked = await this.usersService.isProviderLinked(
         this.currentUser.uid,
         'facebook.com'
@@ -148,6 +165,8 @@ export class HomeComponent implements OnInit {
       } else {
         toast.error(`Error al vincular Facebook: ${error.message}`);
       }
+    } finally {
+      this.isLoadingFacebook.set(false);
     }
   }
 
@@ -158,6 +177,8 @@ export class HomeComponent implements OnInit {
     }
 
     try {
+      this.isLoadingGitHub.set(true);
+
       const isAlreadyLinked = await this.usersService.isProviderLinked(
         this.currentUser.uid,
         'github.com'
@@ -184,6 +205,8 @@ export class HomeComponent implements OnInit {
       toast.success('¡GitHub vinculado exitosamente!');
     } catch (error: any) {
       toast.error('Error al vincular GitHub');
+    } finally {
+      this.isLoadingGitHub.set(false);
     }
   }
 
@@ -275,6 +298,8 @@ export class HomeComponent implements OnInit {
       });
 
       if (formValues) {
+        this.isLoadingPassword.set(true);
+
         const credential = EmailAuthProvider.credential(
           formValues.email,
           formValues.password
@@ -304,6 +329,8 @@ export class HomeComponent implements OnInit {
       } else {
         toast.error('Error al vincular Email/Contraseña');
       }
+    } finally {
+      this.isLoadingPassword.set(false);
     }
   }
 
