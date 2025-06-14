@@ -16,14 +16,22 @@
     class="bg-[#3a8a9c] shadow-xl border-r border-[#2a5f6b] flex flex-col transition-all duration-300">
 
     <div class="border-b border-[#2a5f6b] h-[90px] min-h-[90px] flex flex-col justify-center relative">
-      <div [class]="sidebarCollapsed ? 'text-center te' : 'pl-3'">
-        <h1 [class]="sidebarCollapsed ? 'text-[28px]' : 'text-2xl'"
-          class="font-bold text-white transition-all duration-300">
-          {{ sidebarCollapsed ? 'M' : 'Mentorium' }}
-        </h1>
-        <p *ngIf="!sidebarCollapsed" class="text-sm text-[#9dd4e0] mt-1 transition-opacity duration-300">
-          Panel de Control
-        </p>
+      <div [class]="sidebarCollapsed ? 'flex justify-center items-center' : 'flex items-center'">
+        <img *ngIf="!sidebarCollapsed" src="logo.png" alt="Mentorium Logo"
+          class="size-9 inline-block align-middle ml-2" />
+        <div [class]="sidebarCollapsed ? 'text-center te' : 'pl-3'">
+          <h1 [class]="sidebarCollapsed ? 'text-[28px]' : 'text-2xl'"
+            class="font-bold text-white transition-all duration-300">
+            <span>
+              <img *ngIf="sidebarCollapsed" src="logo.png" alt="Mentorium Logo"
+                class="h-9 inline-block align-middle mr-0.5" />
+              <span *ngIf="!sidebarCollapsed">Mentorium</span>
+            </span>
+          </h1>
+          <p *ngIf="!sidebarCollapsed" class="text-sm text-[#9dd4e0] mt-1 transition-opacity duration-300">
+            Panel de Control
+          </p>
+        </div>
       </div>
 
       <button (click)="toggleSidebar()"
@@ -53,7 +61,7 @@
       <a routerLink="/dashboard/users" routerLinkActive="bg-[#2a5f6b] text-white shadow-md"
         [class]="sidebarCollapsed ? 'justify-center' : 'justify-start'"
         class="flex items-center px-4 py-3 text-[#9dd4e0] rounded-lg hover:bg-[#2a5f6b] hover:text-white transition-all duration-200 group cursor-pointer"
-        [title]="sidebarCollapsed ? 'Gestión de usuarios' : ''">
+        [title]="sidebarCollapsed ? 'Historial' : ''">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="flex-shrink-0">
           <path fill="currentColor"
             d="M13.5 8H12v5l4.28 2.54l.72-1.21l-3.5-2.08zM13 3a9 9 0 0 0-9 9H1l3.96 4.03L9 12H6a7 7 0 0 1 7-7a7 7 0 0 1 7 7a7 7 0 0 1-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.9 8.9 0 0 0 13 21a9 9 0 0 0 9-9a9 9 0 0 0-9-9" />
