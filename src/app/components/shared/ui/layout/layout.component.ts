@@ -1,37 +1,66 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
-import { Router, RouterModule, RouterLink } from '@angular/router';
+import { Component, inject, type OnInit, type OnDestroy } from '@angular/core';
+import {
+  Router,
+  RouterModule,
+  RouterLink,
+  NavigationEnd,
+} from '@angular/router';
 import { AuthStateService } from '../../data-access/auth-state.service';
 import { toast } from 'ngx-sonner';
 import { AccessService } from '../../../auth/data-access/access/access.service';
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
 import { Auth, onAuthStateChanged } from '@angular/fire/auth';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-layout',
   imports: [RouterModule, RouterLink, CommonModule],
   standalone: true,
-  templateUrl: './layout.component.html'
+  templateUrl: './layout.component.html',
 })
 export default class LayoutComponent implements OnInit, OnDestroy {
   private _authState = inject(AuthStateService);
   private _router = inject(Router);
   private accessService = inject(AccessService);
   private auth = inject(Auth);
-  
+
   private inactivityTimeoutId: any = null;
-  private readonly INACTIVITY_LIMIT_MS = 30 * 1000; //TIEMPO DE INACTIVIDAD - SE AJUSTA PARA PRUEBAS
+  private readonly INACTIVITY_LIMIT_MS = 60 * 1000; //TIEMPO DE INACTIVIDAD - SE AJUSTA PARA PRUEBAS
   private alertRunning = false;
   private isAlertVisible = false;
   private lastActivityTime = 0;
   private initialAuthCheck = false;
+  private timeInterval: any = null;
+
+  currentUserName = '';
+  currentUserEmail = '';
+  currentRoute = '';
+  isLoggingOut = false;
+
+  sidebarCollapsed = false;
 
   ngOnInit(): void {
     this.startTimer();
-    
+    this.updateDateTime();
+
+    this.timeInterval = setInterval(() => {
+      this.updateDateTime();
+    }, 1000);
+
+    this._router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        this.currentRoute = event.url;
+      });
+
     onAuthStateChanged(this.auth, async (user) => {
       if (!this.initialAuthCheck) {
         this.initialAuthCheck = true;
+        if (user) {
+          this.currentUserName = user.displayName || 'Usuario';
+          this.currentUserEmail = user.email || '';
+        }
         return;
       }
       if (!user?.email && this.alertRunning) {
@@ -39,25 +68,149 @@ export default class LayoutComponent implements OnInit, OnDestroy {
         this._router.navigateByUrl('/auth/login');
       }
     });
+
+    const savedSidebarState = localStorage.getItem('sidebarCollapsed');
+    if (savedSidebarState !== null) {
+      this.sidebarCollapsed = JSON.parse(savedSidebarState);
+    }
   }
 
   ngOnDestroy(): void {
     this.stopTimer();
+    if (this.timeInterval) {
+      clearInterval(this.timeInterval);
+    }
+  }
+
+  private currentTime = '';
+  private currentDate = '';
+
+  private updateDateTime(): void {
+    const now = new Date();
+    this.currentTime = now.toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+    this.currentDate = now.toLocaleDateString('es-ES', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  }
+
+  getCurrentTime(): string {
+    return this.currentTime;
+  }
+
+  getCurrentDate(): string {
+    const fecha = this.currentDate;
+    if (fecha) {
+      return fecha.charAt(0).toUpperCase() + fecha.slice(1);
+    }
+    return '';
+  }
+
+  getUserInitials(): string {
+    if (this.currentUserName) {
+      return this.currentUserName
+        .split(' ')
+        .map((name) => name.charAt(0))
+        .join('')
+        .toUpperCase()
+        .substring(0, 2);
+    }
+    return this.currentUserEmail.charAt(0).toUpperCase();
+  }
+
+  getPageTitle(): string {
+    const route = this.currentRoute;
+    if (route === '/dashboard' || route === '/dashboard/') {
+      return 'Inicio';
+    } else if (route.includes('/dashboard/users')) {
+      return 'Historial de accesos';
+    } else if (route.includes('/dashboard/new')) {
+      return 'Nueva Tarea';
+    } else if (route.includes('/dashboard/edit')) {
+      return 'Editar Tarea';
+    }
+    return 'Inicio';
+  }
+
+  getPageDescription(): string {
+    const route = this.currentRoute;
+    if (route === '/dashboard' || route === '/dashboard/') {
+      return 'Bienvenido a tu panel de control';
+    } else if (route.includes('/dashboard/users')) {
+      return 'En esta sección puedes ver el historial de accesos de los usuarios';
+    } else if (route.includes('/dashboard/new')) {
+      return 'Crea una nueva tarea';
+    } else if (route.includes('/dashboard/edit')) {
+      return 'Modifica los detalles de la tarea';
+    }
+    return 'Bienvenido a tu panel de control';
+  }
+
+  toggleSidebar(): void {
+    this.sidebarCollapsed = !this.sidebarCollapsed;
+    localStorage.setItem(
+      'sidebarCollapsed',
+      JSON.stringify(this.sidebarCollapsed)
+    );
+  }
+
+  async confirmLogout() {
+    const result = await Swal.fire({
+      title: '¿Cerrar sesión?',
+      text: '¿Estás seguro de que quieres cerrar tu sesión?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, cerrar sesión',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#f87171',
+      cancelButtonColor: '#6b7280',
+      reverseButtons: true,
+      background: '#ffffff',
+      color: '#1f2937',
+      customClass: {
+        popup: 'rounded-xl border border-gray-200',
+        confirmButton: 'rounded-lg px-6 py-2 font-medium',
+        cancelButton: 'rounded-lg px-6 py-2 font-medium',
+      },
+      backdrop: `
+        rgba(0,0,0,0.7)
+      `,
+    });
+
+    if (result.isConfirmed) {
+      await this.logOut();
+    }
   }
 
   async logOut() {
+    this.isLoggingOut = true;
     this.stopTimer();
 
-    const docId = localStorage.getItem('docId');
-    if (docId) {
-      await this.accessService.registerLogout(docId);
-      localStorage.removeItem('docId');
-    }
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    await this._authState.logOut();
-    toast.success('Hasta luego');
-    console.clear();
-    this._router.navigateByUrl('/auth/login');
+      const docId = localStorage.getItem('docId');
+      if (docId) {
+        await this.accessService.registerLogout(docId);
+        localStorage.removeItem('docId');
+      }
+
+      await this._authState.logOut();
+      toast.success('¡Hasta luego! 👋');
+      console.clear();
+      this._router.navigateByUrl('/auth/login');
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+      toast.error('Error al cerrar sesión');
+    } finally {
+      this.isLoggingOut = false;
+    }
   }
 
   private startTimer(): void {
@@ -66,7 +219,7 @@ export default class LayoutComponent implements OnInit, OnDestroy {
     }
     this.alertRunning = true;
     this.lastActivityTime = Date.now();
-    
+
     this.addEventListeners();
     this.scheduleCheck();
   }
@@ -132,7 +285,7 @@ export default class LayoutComponent implements OnInit, OnDestroy {
       return;
     }
     this.isAlertVisible = true;
-    
+
     if (this.inactivityTimeoutId) {
       clearTimeout(this.inactivityTimeoutId);
       this.inactivityTimeoutId = null;
@@ -140,16 +293,26 @@ export default class LayoutComponent implements OnInit, OnDestroy {
 
     try {
       const user = this.auth.currentUser;
-      
+
       const result = await Swal.fire({
         title: '¿Sigues ahí?',
-        text: `No se detectó actividad. Usuario: ${user?.displayName ?? 'Sin nombre'}`,
+        text: `No se detectó actividad. Usuario: ${
+          user?.displayName ?? 'Sin nombre'
+        }`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Sí, continuar',
         cancelButtonText: 'Cerrar sesión',
         allowOutsideClick: false,
-        allowEscapeKey: false
+        allowEscapeKey: false,
+        background: '#ffffff',
+        color: '#1f2937',
+        customClass: {
+          popup: 'rounded-xl border border-gray-200',
+        },
+        backdrop: `
+          rgba(0,0,0,0.7)
+        `,
       });
       this.isAlertVisible = false;
 
