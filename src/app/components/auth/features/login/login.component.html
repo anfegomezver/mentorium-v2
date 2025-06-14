@@ -1,83 +1,102 @@
-<div class="flex justify-center items-center h-screen bg-gray-50">
-  <div class="bg-white w-[500px] h-auto p-[30px] rounded-3xl shadow-xl border border-gray-200">
-    <div class="w-full h-auto mb-[15px] flex flex-col items-center">
-      <!-- Logo/Nombre de la app -->
-      <div class="mb-4">
-        <h1 class="text-[50px] font-bold text-[#3a8a9c] tracking-tight">Mentorium</h1>
-        <div class="w-full h-1 bg-gradient-to-r from-[#6bb6c7] to-[#3a8a9c] rounded-full"></div>
+<div class="min-h-screen bg-gray-50 flex flex-col">
+  <div class="flex-1 flex justify-center items-center py-8">
+    <div class="bg-white w-[500px] h-auto p-[30px] rounded-3xl shadow-xl border border-gray-200">
+      <div class="w-full h-auto mb-[15px] flex flex-col items-center">
+        <!-- Logo/Nombre de la app -->
+        <div class="mb-4">
+          <h1 class="text-[50px] font-bold text-[#3a8a9c] tracking-tight">Mentorium</h1>
+          <div class="w-full h-1 bg-gradient-to-r from-[#6bb6c7] to-[#3a8a9c] rounded-full"></div>
+        </div>
+
+        <h2 class="text-[32px] font-bold text-[#2a5f6b] mb-2">¡Inicia sesión!</h2>
+        <p class="text-[14px] text-gray-600 mb-6 font-medium">
+          Te damos la bienvenida de nuevo
+        </p>
+
+        <!-- Botones de redes sociales modernos -->
+        <div class="flex gap-4 mb-6">
+          <app-google-button (onClick)="submitWithGoogle()" />
+          <app-facebook-button (onClick)="submitWithFacebook()" />
+          <app-github-button (onClick)="submitWithGitHub()" />
+        </div>
+
+        <!-- Separador -->
+        <div class="flex items-center w-full mb-4">
+          <div class="flex-1 h-px bg-gray-300"></div>
+          <span class="px-4 text-sm text-gray-500 font-medium">o continúa con email</span>
+          <div class="flex-1 h-px bg-gray-300"></div>
+        </div>
       </div>
 
-      <h2 class="text-[32px] font-bold text-[#2a5f6b] mb-2">¡Inicia sesión!</h2>
-      <p class="text-[14px] text-gray-600 mb-6 font-medium">
-        Te damos la bienvenida de nuevo
-      </p>
+      <form class="flex flex-col" [formGroup]="form" (ngSubmit)="submit()">
+        <input
+          class="border-[1px] px-[15px] py-[12px] focus:outline-none rounded-xl font-medium transition-all duration-200"
+          [ngClass]="{ 'border-red-500 bg-red-50': isRequired('email') || hasEmailError(), 'border-[#6bb6c7] focus:border-[#3a8a9c] focus:ring-2 focus:ring-[#6bb6c7]/20': !(isRequired('email') || hasEmailError()) }"
+          type="text" placeholder="Correo electrónico" name="email" formControlName="email">
 
-      <!-- Botones de redes sociales modernos -->
-      <div class="flex gap-4 mb-6">
-        <app-google-button (onClick)="submitWithGoogle()" />
-        <app-facebook-button (onClick)="submitWithFacebook()" />
-        <app-github-button (onClick)="submitWithGitHub()" />
-      </div>
+        @if (isRequired('email')) {
+        <small class="text-red-500 font-medium">Este campo es requerido</small>
+        }
 
-      <!-- Separador -->
-      <div class="flex items-center w-full mb-4">
-        <div class="flex-1 h-px bg-gray-300"></div>
-        <span class="px-4 text-sm text-gray-500 font-medium">o continúa con email</span>
-        <div class="flex-1 h-px bg-gray-300"></div>
+        @if (hasEmailError()) {
+        <small class="text-red-500 font-medium">El correo debe ser válido</small>
+        }
+
+        <input
+          class="mt-[18px] border-[1px] px-[15px] py-[12px] focus:outline-none rounded-xl font-medium transition-all duration-200"
+          [ngClass]="{ 'border-red-500 bg-red-50': isRequired('password') || hasPasswordError(), 'border-[#6bb6c7] focus:border-[#3a8a9c] focus:ring-2 focus:ring-[#6bb6c7]/20': !(isRequired('password') || hasPasswordError()) }"
+          type="password" placeholder="Contraseña" name="password" formControlName="password">
+
+        @if (isRequired('password')) {
+        <small class="text-red-500 mb-[15px] font-medium">Este campo es requerido</small>
+        }
+
+        @if (hasPasswordError()) {
+        <small class="text-red-500 mb-[15px] font-medium">La contraseña debe tener al menos 8 caracteres, incluir una
+          mayúscula, una minúscula, un número y un carácter especial.</small>
+        }
+
+        <a routerLink="/auth/forgot-password"
+          class="mt-2 text-[#3a8a9c] self-start hover:text-[#2a5f6b] transition-colors duration-200 font-medium">¿Olvidaste
+          tu contraseña?</a>
+
+        <button [disabled]="loading()"
+          class="bg-[#3a8a9c] h-[45px] text-white text-[20px] font-semibold rounded-xl hover:bg-[#2a5f6b] border-[2px] cursor-pointer transition-all duration-300 border-none w-full mt-8 flex items-center justify-center shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed">
+
+          <span *ngIf="loading()" class="inline-block mr-2">
+            <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+              viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+              </path>
+            </svg>
+          </span>
+
+          {{ loading() ? '' : 'Entrar' }}
+        </button>
+
+        <span class="mt-7 font-medium text-gray-700 text-center">¿Aún no tienes cuenta?
+          <a routerLink="/auth/register"
+            class="text-[#3a8a9c] hover:text-[#2a5f6b] transition-colors duration-200">Regístrate
+            ahora.</a></span>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-gray-200 py-4 px-6 mt-auto">
+    <div class="flex items-center justify-center">
+      <div class="flex items-center gap-2 text-gray-600">
+        <img src="logo.png" alt="Mentorium Logo" class="w-6 h-6">
+        <span class="font-semibold text-[#2a5f6b]">Mentorium</span>
+        <span class="text-gray-400">•</span>
+        <span class="text-sm font-medium">v2.0.0</span>
+        <span class="text-gray-400">•</span>
+        <span class="text-sm font-medium">© 2025</span>
+        <span class="text-gray-400">•</span>
+        <span class="text-sm">Todos los derechos reservados</span>
       </div>
     </div>
-
-    <form class="flex flex-col" [formGroup]="form" (ngSubmit)="submit()">
-      <input
-        class="border-[1px] px-[15px] py-[12px] focus:outline-none rounded-xl font-medium transition-all duration-200"
-        [ngClass]="{ 'border-red-500 bg-red-50': isRequired('email') || hasEmailError(), 'border-[#6bb6c7] focus:border-[#3a8a9c] focus:ring-2 focus:ring-[#6bb6c7]/20': !(isRequired('email') || hasEmailError()) }"
-        type="text" placeholder="Correo electrónico" name="email" formControlName="email">
-
-      @if (isRequired('email')) {
-      <small class="text-red-500 font-medium">Este campo es requerido</small>
-      }
-
-      @if (hasEmailError()) {
-      <small class="text-red-500 font-medium">El correo debe ser válido</small>
-      }
-
-      <input
-        class="mt-[18px] border-[1px] px-[15px] py-[12px] focus:outline-none rounded-xl font-medium transition-all duration-200"
-        [ngClass]="{ 'border-red-500 bg-red-50': isRequired('password') || hasPasswordError(), 'border-[#6bb6c7] focus:border-[#3a8a9c] focus:ring-2 focus:ring-[#6bb6c7]/20': !(isRequired('password') || hasPasswordError()) }"
-        type="password" placeholder="Contraseña" name="password" formControlName="password">
-
-      @if (isRequired('password')) {
-      <small class="text-red-500 mb-[15px] font-medium">Este campo es requerido</small>
-      }
-
-      @if (hasPasswordError()) {
-      <small class="text-red-500 mb-[15px] font-medium">La contraseña debe tener al menos 8 caracteres, incluir una
-        mayúscula, una minúscula, un número y un carácter especial.</small>
-      }
-
-      <a routerLink="/auth/forgot-password"
-        class="text-[#3a8a9c] self-start hover:text-[#2a5f6b] transition-colors duration-200 font-medium mt-2">¿Olvidaste
-        tu contraseña?</a>
-
-      <button [disabled]="loading()"
-        class="bg-[#3a8a9c] h-[45px] text-white text-[20px] font-semibold rounded-xl hover:bg-[#2a5f6b] border-[2px] cursor-pointer transition-all duration-300 border-none w-full mt-8 flex items-center justify-center shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed">
-
-        <span *ngIf="loading()" class="inline-block mr-2">
-          <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
-            viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-            </path>
-          </svg>
-        </span>
-
-        {{ loading() ? '' : 'Entrar' }}
-      </button>
-
-      <span class="mt-7 font-medium text-gray-700 text-center">¿Aún no tienes cuenta?
-        <a routerLink="/auth/register"
-          class=" text-[#3a8a9c] hover:text-[#2a5f6b] transition-colors duration-200">Regístrate ahora.</a></span>
-    </form>
-  </div>
+  </footer>
 </div>
