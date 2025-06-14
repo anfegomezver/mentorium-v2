@@ -1,176 +1,120 @@
 <section class="mx-auto w-full max-w-screen-xl px-4">
-  <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
-    <div class="px-6 py-4 border-b border-gray-200">
-      <div class="flex justify-between items-center">
-        <h3 class="text-lg font-semibold text-gray-800">Gestión de Usuarios</h3>
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
+    <div class="flex items-center justify-center space-x-3">
+      <div class="animate-spin rounded-full h-8 w-8 border-4 border-[#6bb6c7] border-t-[#2a5f6b]"></div>
+      <span class="text-[#2a5f6b] font-semibold">Cargando historial de accesos...</span>
+    </div>
+  </div>
 
-        <button
-          (click)="toggleAdvancedSearch()"
-          class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-        >
-          <span>{{
-            showAdvancedSearch ? "Ocultar búsqueda" : "Búsqueda avanzada"
-          }}</span>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            [class.rotate-180]="showAdvancedSearch"
-            class="transition-transform duration-300"
-          >
+  <!-- Main Content -->
+  <div *ngIf="!isLoading" class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-[#6bb6c7]/10 to-[#3a8a9c]/10">
+      <div class="flex justify-between items-center">
+        <div>
+          <h3 class="text-xl font-bold text-[#2a5f6b]">Historial de Accesos</h3>
+          <p class="text-sm text-gray-600 mt-1 font-medium">Gestiona y consulta los registros de acceso de usuarios</p>
+        </div>
+
+        <button (click)="toggleAdvancedSearch()"
+          class="cursor-pointer flex items-center gap-2 px-4 py-2 bg-[#3a8a9c] hover:bg-[#2a5f6b] text-white rounded-lg transition-all duration-300 font-semibold shadow-md hover:shadow-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.35-4.35" />
+          </svg>
+          <span>{{ showAdvancedSearch ? "Ocultar filtros" : "Filtros avanzados" }}</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            [class.rotate-180]="showAdvancedSearch" class="transition-transform duration-300">
             <polyline points="6 9 12 15 18 9"></polyline>
           </svg>
         </button>
       </div>
 
-      <div
-        class="overflow-hidden transition-all duration-300 ease-in-out"
-        [class.max-h-0]="!showAdvancedSearch"
-        [class.max-h-96]="showAdvancedSearch"
-        [class.opacity-0]="!showAdvancedSearch"
-        [class.opacity-100]="showAdvancedSearch"
-        [class.mt-0]="!showAdvancedSearch"
-        [class.mt-4]="showAdvancedSearch"
-      >
-        <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-          <h4 class="text-md font-medium text-gray-700 mb-3">
-            Búsqueda Avanzada
-          </h4>
+      <!-- Advanced Search Panel -->
+      <div class="overflow-hidden transition-all duration-300 ease-in-out" [class.max-h-0]="!showAdvancedSearch"
+        [class.max-h-96]="showAdvancedSearch" [class.opacity-0]="!showAdvancedSearch"
+        [class.opacity-100]="showAdvancedSearch" [class.mt-0]="!showAdvancedSearch" [class.mt-6]="showAdvancedSearch">
+        <div class="bg-white p-6 rounded-xl border border-[#6bb6c7]/30 shadow-sm">
+          <div class="flex justify-between items-center mb-4">
+            <h4 class="text-md font-bold text-[#2a5f6b] flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
+              </svg>
+              Filtros de Búsqueda
+            </h4>
+            <button *ngIf="isSearchActive()" (click)="clearSearch()"
+              class="cursor-pointer text-sm text-[#3a8a9c] hover:text-[#2a5f6b] font-medium transition-colors duration-200">
+              Limpiar filtros
+            </button>
+          </div>
 
-          <div class="flex flex-wrap gap-4 mb-3">
+          <!-- Search Options -->
+          <div class="flex flex-wrap gap-6 mb-4">
             <div class="flex items-center">
-              <input
-                type="checkbox"
-                id="searchByName"
-                [(ngModel)]="searchByName"
+              <input type="checkbox" id="searchByName" [(ngModel)]="searchByName"
                 (ngModelChange)="toggleSearchOption('name')"
-                class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-              />
-              <label for="searchByName" class="ml-2 text-sm text-gray-700"
-                >Buscar por nombre</label
-              >
+                class="cursor-pointer w-4 h-4 text-[#3a8a9c] bg-gray-100 border-[#6bb6c7] rounded focus:ring-[#3a8a9c] focus:ring-2" />
+              <label for="searchByName" class="cursor-pointer ml-3 text-sm font-medium text-gray-700">Filtrar por nombre
+                de usuario</label>
             </div>
 
             <div class="flex items-center">
-              <input
-                type="checkbox"
-                id="searchByEmail"
-                [(ngModel)]="searchByEmail"
+              <input type="checkbox" id="searchByEmail" [(ngModel)]="searchByEmail"
                 (ngModelChange)="toggleSearchOption('email')"
-                class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-              />
-              <label for="searchByEmail" class="ml-2 text-sm text-gray-700"
-                >Buscar por correo</label
-              >
+                class="cursor-pointer w-4 h-4 text-[#3a8a9c] bg-gray-100 border-[#6bb6c7] rounded focus:ring-[#3a8a9c] focus:ring-2" />
+              <label for="searchByEmail" class="cursor-pointer ml-3 text-sm font-medium text-gray-700">Filtrar por
+                dirección de correo</label>
             </div>
 
             <div class="flex items-center">
-              <input
-                type="checkbox"
-                id="searchByDate"
-                [(ngModel)]="searchByDate"
-                (ngModelChange)="applyFilters()"
-                class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-              />
-              <label for="searchByDate" class="ml-2 text-sm text-gray-700"
-                >Buscar por fecha</label
-              >
+              <input type="checkbox" id="searchByDate" [(ngModel)]="searchByDate" (ngModelChange)="applyFilters()"
+                class="cursor-pointer w-4 h-4 text-[#3a8a9c] bg-gray-100 border-[#6bb6c7] rounded focus:ring-[#3a8a9c] focus:ring-2" />
+              <label for="searchByDate" class="cursor-pointer ml-3 text-sm font-medium text-gray-700">Filtrar por fecha
+                de acceso</label>
             </div>
           </div>
 
+          <!-- Search Inputs -->
           <div class="flex flex-wrap gap-4 items-end">
-            <div
-              class="flex-grow max-w-xs transition-all duration-300 ease-in-out overflow-hidden"
-              [class.opacity-0]="!(searchByName || searchByEmail)"
-              [class.opacity-100]="searchByName || searchByEmail"
-              [class.max-h-0]="!(searchByName || searchByEmail)"
-              [class.max-h-24]="searchByName || searchByEmail"
-              [class.mt-0]="!(searchByName || searchByEmail)"
-              [class.mb-0]="!(searchByName || searchByEmail)"
-              [class.mt-1]="searchByName || searchByEmail"
-              [class.mb-1]="searchByName || searchByEmail"
-            >
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                {{ searchByName ? "Nombre" : "Correo" }}
+            <div class="flex-grow max-w-xs transition-all duration-300 ease-in-out overflow-hidden"
+              [class.opacity-0]="!(searchByName || searchByEmail)" [class.opacity-100]="searchByName || searchByEmail"
+              [class.max-h-0]="!(searchByName || searchByEmail)" [class.max-h-24]="searchByName || searchByEmail">
+              <label class="block text-sm font-semibold text-[#2a5f6b] mb-2">
+                {{ searchByName ? "Buscar por nombre" : "Buscar por correo" }}
               </label>
               <div class="relative">
-                <input
-                  type="text"
-                  [(ngModel)]="searchText"
-                  (ngModelChange)="applyFilters()"
-                  placeholder="Ingrese texto para buscar"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md pr-8 focus:outline-none"
-                />
-                <button
-                  *ngIf="searchText"
-                  (click)="clearSearchText()"
-                  class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
-                  type="button"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="size-6 cursor-pointer"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M6 18 18 6M6 6l12 12"
-                    />
+                <input type="text" [(ngModel)]="searchText" (ngModelChange)="applyFilters()"
+                  [placeholder]="searchByName ? 'Ej: Andrés Gómez' : 'Ej: usuario@ejemplo.com'"
+                  class="w-full px-3 py-2 border border-[#6bb6c7] rounded-lg pr-10 focus:outline-none focus:ring-2 focus:ring-[#6bb6c7]/20 focus:border-[#3a8a9c] font-medium transition-all duration-200" />
+                <button *ngIf="searchText" (click)="clearSearchText()"
+                  class="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#3a8a9c] focus:outline-none transition-colors duration-200"
+                  type="button">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
             </div>
 
-            <div
-              class="flex-grow max-w-xs transition-all duration-300 ease-in-out overflow-hidden"
-              [class.opacity-0]="!searchByDate"
-              [class.opacity-100]="searchByDate"
-              [class.max-h-0]="!searchByDate"
-              [class.max-h-24]="searchByDate"
-              [class.mt-0]="!searchByDate"
-              [class.mb-0]="!searchByDate"
-              [class.mt-1]="searchByDate"
-              [class.mb-1]="searchByDate"
-            >
-              <label class="block text-sm font-medium text-gray-700 mb-1"
-                >Fecha</label
-              >
+            <div class="flex-grow max-w-xs transition-all duration-300 ease-in-out overflow-hidden"
+              [class.opacity-0]="!searchByDate" [class.opacity-100]="searchByDate" [class.max-h-0]="!searchByDate"
+              [class.max-h-24]="searchByDate">
+              <label class="block text-sm font-semibold text-[#2a5f6b] mb-2">Seleccionar fecha</label>
               <div class="relative">
-                <input
-                  type="date"
-                  [(ngModel)]="searchDate"
-                  (ngModelChange)="applyFilters()"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md pr-8"
-                />
-                <button
-                  *ngIf="searchDate"
-                  (click)="clearSearchDate()"
-                  class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
-                  type="button"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="size-6 cursor-pointer"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M6 18 18 6M6 6l12 12"
-                    />
+                <input type="date" [(ngModel)]="searchDate" (ngModelChange)="applyFilters()"
+                  class="cursor-pointer w-full px-3 py-2 border border-[#6bb6c7] rounded-lg pr-10 focus:outline-none focus:ring-2 focus:ring-[#6bb6c7]/20 focus:border-[#3a8a9c] font-medium transition-all duration-200" />
+                <button *ngIf="searchDate" (click)="clearSearchDate()"
+                  class="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#3a8a9c] focus:outline-none transition-colors duration-200"
+                  type="button">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
@@ -179,261 +123,409 @@
         </div>
       </div>
 
-      <div class="flex gap-4 mt-4">
-        <input
-          type="date"
-          [(ngModel)]="consultaFecha"
-          class="border rounded px-3 py-1 text-sm"
-        />
-        <button
-          (click)="consultarPorFecha()"
-          class="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
-        >
-          Consultar
-        </button>
+      <!-- Quick Date Query -->
+      <div
+        class="flex gap-4 mt-6 p-4 bg-gradient-to-r from-[#6bb6c7]/5 to-[#3a8a9c]/5 rounded-lg border border-[#6bb6c7]/20">
+        <div class="flex-1 max-w-xs">
+          <label class="block text-sm font-semibold text-[#2a5f6b] mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-1">
+              <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+              <line x1="16" x2="16" y1="2" y2="6" />
+              <line x1="8" x2="8" y1="2" y2="6" />
+              <line x1="3" x2="21" y1="10" y2="10" />
+            </svg>
+            Consulta rápida por fecha
+          </label>
+          <input type="date" [(ngModel)]="consultaFecha"
+            class="cursor-pointer w-full border border-[#6bb6c7] rounded-lg px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#6bb6c7]/20 focus:border-[#3a8a9c] transition-all duration-200" />
+        </div>
+        <div class="flex items-end">
+          <button (click)="consultarPorFecha()" [disabled]="isModalLoading"
+            class="cursor-pointer bg-[#3a8a9c] text-white px-6 py-2 rounded-lg hover:bg-[#2a5f6b] font-semibold transition-all duration-300 shadow-md hover:shadow-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+            <div *ngIf="isModalLoading"
+              class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+            <svg *ngIf="!isModalLoading" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
+            {{ isModalLoading ? 'Consultando...' : 'Consultar registros' }}
+          </button>
+        </div>
       </div>
     </div>
 
+    <!-- Table Controls -->
+    <div class="px-6 py-3 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+      <div class="flex items-center gap-4">
+        <span class="text-sm font-medium text-gray-700">{{ getPaginationInfo() }}</span>
+        <div class="flex items-center gap-2">
+          <label class="text-sm font-medium text-gray-700">Mostrar:</label>
+          <select [(ngModel)]="itemsPerPage" (ngModelChange)="changeItemsPerPage($event)"
+            class="cursor-pointer border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#6bb6c7]/20 focus:border-[#3a8a9c]">
+            <option *ngFor="let option of itemsPerPageOptions" [value]="option">{{ option }}</option>
+          </select>
+          <span class="text-sm text-gray-700">registros</span>
+        </div>
+      </div>
+
+      <div *ngIf="isSearchActive()" class="flex items-center gap-2 text-sm">
+        <span class="text-gray-600">Filtros activos:</span>
+        <span class="bg-[#6bb6c7]/20 text-[#2a5f6b] px-2 py-1 rounded-full font-medium">
+          {{ filteredAccess.length }} de {{ sortedAccess.length }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Table -->
     <div class="overflow-x-auto">
       <table class="w-full">
-        <thead class="bg-gray-50">
+        <thead class="bg-[#3a8a9c]/5">
           <tr>
             <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
-              (click)="sortData('displayName')"
-            >
+              class="cursor-pointer px-6 py-3 text-left text-xs font-bold text-[#2a5f6b] uppercase transition-colors duration-200 hover:bg-[#6bb6c7]/10"
+              (click)="sortData('displayName')">
               <div class="flex items-center">
-                Nombre
+                Nombre de Usuario
                 <span class="ml-1">
-                  @if (sortColumn === 'displayName') { @if (sortDirection ===
-                  'asc') {
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fill-rule="evenodd"
+                  @if (sortColumn === 'displayName') {
+                  @if (sortDirection === 'asc') {
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
                       d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
-                      clip-rule="evenodd"
-                    />
+                      clip-rule="evenodd" />
                   </svg>
                   } @else {
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fill-rule="evenodd"
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
                       d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                      clip-rule="evenodd"
-                    />
+                      clip-rule="evenodd" />
                   </svg>
-                  } }
+                  }
+                  }
                 </span>
               </div>
             </th>
             <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
-              (click)="sortData('email')"
-            >
+              class="cursor-pointer px-6 py-3 text-left text-xs font-bold text-[#2a5f6b] uppercase transition-colors duration-200 hover:bg-[#6bb6c7]/10"
+              (click)="sortData('email')">
               <div class="flex items-center">
-                Email
+                Correo Electrónico
                 <span class="ml-1">
-                  @if (sortColumn === 'email') { @if (sortDirection === 'asc') {
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fill-rule="evenodd"
+                  @if (sortColumn === 'email') {
+                  @if (sortDirection === 'asc') {
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
                       d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
-                      clip-rule="evenodd"
-                    />
+                      clip-rule="evenodd" />
                   </svg>
                   } @else {
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fill-rule="evenodd"
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
                       d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                      clip-rule="evenodd"
-                    />
+                      clip-rule="evenodd" />
                   </svg>
-                  } }
+                  }
+                  }
                 </span>
               </div>
             </th>
             <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-            >
-              Método
-            </th>
-            <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
-              (click)="sortData('loginAt')"
-            >
+              class="cursor-pointer px-6 py-3 text-left text-xs font-bold text-[#2a5f6b] uppercase transition-colors duration-200 hover:bg-[#6bb6c7]/10"
+              (click)="sortData('method')">
               <div class="flex items-center">
-                Último Login
+                Método de Acceso
                 <span class="ml-1">
-                  @if (sortColumn === 'loginAt') { @if (sortDirection === 'asc')
-                  {
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fill-rule="evenodd"
+                  @if (sortColumn === 'method') {
+                  @if (sortDirection === 'asc') {
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
                       d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
-                      clip-rule="evenodd"
-                    />
+                      clip-rule="evenodd" />
                   </svg>
                   } @else {
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fill-rule="evenodd"
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
                       d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                      clip-rule="evenodd"
-                    />
+                      clip-rule="evenodd" />
                   </svg>
-                  } }
+                  }
+                  }
                 </span>
               </div>
             </th>
             <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
-              (click)="sortData('logoutAt')"
-            >
+              class="cursor-pointer px-6 py-3 text-left text-xs font-bold text-[#2a5f6b] uppercase transition-colors duration-200 hover:bg-[#6bb6c7]/10"
+              (click)="sortData('loginAt')">
               <div class="flex items-center">
-                Último Logout
+                Fecha de Ingreso
                 <span class="ml-1">
-                  @if (sortColumn === 'logoutAt') { @if (sortDirection ===
-                  'asc') {
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fill-rule="evenodd"
+                  @if (sortColumn === 'loginAt') {
+                  @if (sortDirection === 'asc') {
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
                       d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
-                      clip-rule="evenodd"
-                    />
+                      clip-rule="evenodd" />
                   </svg>
                   } @else {
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fill-rule="evenodd"
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
                       d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                      clip-rule="evenodd"
-                    />
+                      clip-rule="evenodd" />
                   </svg>
-                  } }
+                  }
+                  }
+                </span>
+              </div>
+            </th>
+            <th
+              class="cursor-pointer px-6 py-3 text-left text-xs font-bold text-[#2a5f6b] uppercase transition-colors duration-200 hover:bg-[#6bb6c7]/10"
+              (click)="sortData('logoutAt')">
+              <div class="flex items-center">
+                Fecha de Salida
+                <span class="ml-1">
+                  @if (sortColumn === 'logoutAt') {
+                  @if (sortDirection === 'asc') {
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                      d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
+                      clip-rule="evenodd" />
+                  </svg>
+                  } @else {
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clip-rule="evenodd" />
+                  </svg>
+                  }
+                  }
                 </span>
               </div>
             </th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
-          @if (filteredAccess.length > 0) { @for (user of filteredAccess; track
-          user.uidUser) {
-          <tr class="hover:bg-gray-50">
-            <td class="px-6 py-4 text-sm text-gray-900">
-              {{ user.displayName || "Sin nombre" }}
+          @if (paginatedAccess.length > 0) {
+          @for (user of paginatedAccess; track user.uidUser) {
+          <tr class="hover:bg-[#6bb6c7]/5 transition-colors duration-200">
+            <td class="px-6 py-4 text-sm text-gray-900 font-medium">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-[#6bb6c7]/20 rounded-full flex items-center justify-center">
+                  <span class="text-[#2a5f6b] text-xs font-bold">
+                    {{ (user.displayName || user.email).charAt(0).toUpperCase() }}
+                  </span>
+                </div>
+                {{ user.displayName || "Usuario sin nombre" }}
+              </div>
             </td>
-            <td class="px-6 py-4 text-sm text-gray-900">{{ user.email }}</td>
+            <td class="px-6 py-4 text-sm text-gray-900 font-medium">{{ user.email }}</td>
             <td class="px-6 py-4">
-              <span
-                class="inline-flex px-2 py-1 text-xs font-medium rounded-full"
-                [class.bg-blue-100]="user.method === 'email'"
-                [class.text-blue-800]="user.method === 'email'"
-                [class.bg-green-100]="user.method === 'google'"
-                [class.text-green-800]="user.method === 'google'"
-                [class.bg-purple-100]="user.method === 'github'"
-                [class.text-purple-800]="user.method === 'github'"
-              >
-                {{ user.method || "desconocido" | titlecase }}
+              <span class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full"
+                [class.bg-blue-100]="user.method === 'email'" [class.text-blue-800]="user.method === 'email'"
+                [class.bg-green-100]="user.method === 'google'" [class.text-green-800]="user.method === 'google'"
+                [class.bg-purple-100]="user.method === 'github'" [class.text-purple-800]="user.method === 'github'"
+                [class.bg-orange-100]="user.method === 'facebook'" [class.text-orange-800]="user.method === 'facebook'">
+                {{ getMethodDisplayName(user.method) }}
               </span>
             </td>
-            <td class="px-6 py-4 text-sm text-gray-900">
+            <td class="px-6 py-4 text-sm text-gray-900 font-medium">
               @if (user.loginAt) {
-              {{ user.loginAt.toDate() | date : "medium" }}
-              } @else { Nunca }
+              <div class="flex flex-col">
+                <span class="font-semibold">{{ user.loginAt.toDate() | date : "medium" : "" : "es" }}</span>
+                <span class="text-xs text-gray-500 font-medium">{{ user.loginAt.toDate() | date : "EEEE" : "" : "es" |
+                  titlecase }}</span>
+              </div>
+              } @else {
+              <span class="text-gray-400 italic">Sin registro</span>
+              }
             </td>
-            <td class="px-6 py-4 text-sm text-gray-900">
+            <td class="px-6 py-4 text-sm text-gray-900 font-medium">
               @if (user.logoutAt) {
-              {{ user.logoutAt.toDate() | date : "medium" }}
-              } @else { Nunca }
+              <div class="flex flex-col">
+                <span class="font-semibold">{{ user.logoutAt.toDate() | date : "medium" : "" : "es" }}</span>
+                <span class="text-xs text-gray-500 font-medium">{{ user.logoutAt.toDate() | date : "EEEE" : "" : "es" |
+                  titlecase }}</span>
+              </div>
+              } @else {
+              <span
+                class="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold bg-green-100 text-green-800 rounded-full">
+                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                Sesión activa
+              </span>
+              }
             </td>
           </tr>
-          } } @else {
+          }
+          } @else {
           <tr>
-            <td colspan="6" class="px-6 py-8 text-center text-gray-500">
-              No hay usuarios que coincidan con los criterios de búsqueda
+            <td colspan="5" class="px-6 py-12 text-center text-gray-500 font-medium">
+              <div class="flex flex-col items-center gap-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+                  class="text-gray-300">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.35-4.35" />
+                </svg>
+                <div>
+                  <p class="text-lg font-semibold text-gray-400">No se encontraron registros</p>
+                  <p class="text-sm text-gray-400">
+                    {{ isSearchActive() ? 'Intenta ajustar los filtros de búsqueda' : 'No hay registros de acceso
+                    disponibles' }}
+                  </p>
+                </div>
+              </div>
             </td>
           </tr>
           }
         </tbody>
       </table>
     </div>
+
+    <!-- Pagination -->
+    <div *ngIf="totalPages > 1" class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+      <div class="flex items-center justify-between">
+        <div class="text-sm text-gray-700 font-medium">
+          {{ getPaginationInfo() }}
+        </div>
+
+        <div class="flex items-center gap-2">
+          <!-- Previous Button -->
+          <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1"
+            class="cursor-pointer px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200">
+            Anterior
+          </button>
+
+          <!-- Page Numbers -->
+          <div class="flex gap-1">
+            @for (page of getPageNumbers(); track page) {
+            <button (click)="changePage(page)" [class.bg-[#3a8a9c]]="page === currentPage"
+              [class.text-white]="page === currentPage" [class.bg-white]="page !== currentPage"
+              [class.text-gray-700]="page !== currentPage" [class.hover:bg-[#2a5f6b]]="page === currentPage"
+              [class.hover:bg-gray-50]="page !== currentPage"
+              class="cursor-pointer px-3 py-2 text-sm font-medium border border-gray-300 rounded-lg transition-colors duration-200">
+              {{ page }}
+            </button>
+            }
+          </div>
+
+          <!-- Next Button -->
+          <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages"
+            class="cursor-pointer px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200">
+            Siguiente
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div
-    *ngIf="showModal"
-    class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center"
-  >
+  <!-- Modal -->
+  <div *ngIf="showModal"
+    class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center backdrop-blur-sm transition-all duration-300"
+    [class.animate-fadeIn]="!isClosingModal" [class.animate-fadeOut]="isClosingModal">
     <div
-      class="bg-white max-h-[80vh] w-[90%] md:w-[70%] rounded-lg overflow-auto shadow-lg p-6 relative"
-    >
-      <button
-        (click)="cerrarModal()"
-        class="absolute top-3 right-3 text-gray-600 hover:text-red-500"
-      >
-        ✕
-      </button>
-      <h2 class="text-lg font-bold mb-4">Resultados por Fecha</h2>
-      <table class="w-full text-sm text-left">
-        <thead class="bg-gray-100">
-          <tr>
-            <th class="p-2">Nombre</th>
-            <th class="p-2">Email</th>
-            <th class="p-2">Método</th>
-            <th class="p-2">Login</th>
-            <th class="p-2">Logout</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let user of modalResults" class="border-t">
-            <td class="p-2">{{ user.displayName || "Sin nombre" }}</td>
-            <td class="p-2">{{ user.email }}</td>
-            <td class="p-2">{{ user.method | titlecase }}</td>
-            <td class="p-2">{{ user.loginAt?.toDate() | date : "medium" }}</td>
-            <td class="p-2">{{ user.logoutAt?.toDate() | date : "medium" }}</td>
-          </tr>
-        </tbody>
-      </table>
+      class="bg-white max-h-[85vh] w-[95%] md:w-[80%] lg:w-[70%] rounded-xl shadow-2xl border border-gray-200 relative transition-all duration-300 transform"
+      [class.animate-slideIn]="!isClosingModal" [class.animate-slideOut]="isClosingModal">
+
+      <!-- Modal Header -->
+      <div class="sticky top-0 bg-gradient-to-r from-[#6bb6c7] to-[#3a8a9c] px-6 py-4 rounded-t-xl">
+        <div class="flex justify-between items-center">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+              <circle cx="12" cy="5" r="2" />
+              <path d="m12 7 0 4" />
+            </svg>
+            Registros del {{ consultaFecha | date:'fullDate' : '' : 'es' | titlecase }}
+          </h2>
+          <button (click)="cerrarModal()" [disabled]="isClosingModal"
+            class="cursor-pointer text-white hover:text-gray-200 transition-colors duration-200 p-2 hover:bg-white/10 rounded-lg disabled:opacity-50">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 6 6 18" />
+              <path d="m6 6 12 12" />
+            </svg>
+          </button>
+        </div>
+        <p class="text-white/80 text-sm mt-1">{{ modalResults.length }} registro(s) encontrado(s)</p>
+      </div>
+
+      <!-- Modal Content -->
+      <div class="overflow-auto max-h-[calc(85vh-120px)]">
+        <div class="p-6">
+          @if (modalResults.length > 0) {
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+              <thead class="bg-[#3a8a9c]/5 sticky top-0">
+                <tr>
+                  <th class="p-3 font-bold text-[#2a5f6b]">Usuario</th>
+                  <th class="p-3 font-bold text-[#2a5f6b]">Correo</th>
+                  <th class="p-3 font-bold text-[#2a5f6b]">Método</th>
+                  <th class="p-3 font-bold text-[#2a5f6b]">Hora de Ingreso</th>
+                  <th class="p-3 font-bold text-[#2a5f6b]">Hora de Salida</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (user of modalResults; track user.uidUser) {
+                <tr class="border-t hover:bg-[#6bb6c7]/5 transition-colors duration-200">
+                  <td class="p-3 font-medium">
+                    <div class="flex items-center gap-2">
+                      <div class="w-6 h-6 bg-[#6bb6c7]/20 rounded-full flex items-center justify-center">
+                        <span class="text-[#2a5f6b] text-xs font-bold">
+                          {{ (user.displayName || user.email).charAt(0).toUpperCase() }}
+                        </span>
+                      </div>
+                      {{ user.displayName || "Usuario sin nombre" }}
+                    </div>
+                  </td>
+                  <td class="p-3 font-medium">{{ user.email }}</td>
+                  <td class="p-3 font-medium">
+                    <span
+                      class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-[#6bb6c7]/20 text-[#2a5f6b]">
+                      {{ getMethodDisplayName(user.method) }}
+                    </span>
+                  </td>
+                  <td class="p-3 font-medium">
+                    <div class="flex flex-col">
+                      <span class="font-semibold">{{ user.loginAt?.toDate() | date : "medium" : "" : "es" }}</span>
+                      <span class="text-xs text-gray-500 font-medium">{{ user.loginAt?.toDate() | date : "EEEE" : "" :
+                        "es" | titlecase }}</span>
+                    </div>
+                  </td>
+                  <td class="p-3 font-medium">
+                    @if (user.logoutAt) {
+                    <div class="flex flex-col">
+                      <span class="font-semibold">{{ user.logoutAt.toDate() | date : "medium" : "" : "es" }}</span>
+                      <span class="text-xs text-gray-500 font-medium">{{ user.logoutAt.toDate() | date : "EEEE" : "" :
+                        "es" | titlecase }}</span>
+                    </div>
+                    } @else {
+                    <span
+                      class="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold bg-green-100 text-green-800 rounded-full">
+                      <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                      Activa
+                    </span>
+                    }
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          } @else {
+          <div class="text-center py-8">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+              class="text-gray-300 mx-auto mb-4">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
+            <p class="text-gray-500 font-medium">No se encontraron registros para esta fecha</p>
+          </div>
+          }
+        </div>
+      </div>
     </div>
   </div>
 </section>
