@@ -1,32 +1,49 @@
 <section class="mx-auto w-full max-w-screen-sm px-4">
-    <form class="flex flex-col w-[95%] mx-auto gap-2" [formGroup]="form" (ngSubmit)="submit()">
-        <div class="flex flex-col">
-            <label for="titulo" class="text-[15px] text-gray-900 font-semibold">Titulo:</label>
-            <input
-                class="mt-[7px] border-[1px] border-[#b1c4d3] px-[12px] py-[9px] focus:outline-blue-400 shadow font-[350] font-sans text-[16px] rounded-lg"
-                type="text" placeholder="Ingresa El titulo de la tarea" name="title" formControlName="title" />
-            @if (form.controls['title'].invalid && form.controls['title'].touched) {
-            <small class="text-red-500">Este campo es requerido</small>
-            }
+    <!-- Loading State para cargar tarea -->
+    <div *ngIf="loadingTask()" class="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
+        <div class="flex items-center justify-center space-x-3">
+            <div class="animate-spin rounded-full h-8 w-8 border-4 border-[#6bb6c7] border-t-[#2a5f6b]"></div>
+            <span class="text-[#2a5f6b] font-semibold">Cargando tarea...</span>
         </div>
+    </div>
 
-        <div class="flex flex-col">
-            <label class="inline-flex items-center mb-5 cursor-pointer">
-                <input formControlName="completed" type="checkbox" value="" class="sr-only peer">
-                <div
-                    class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:w-5 after:h-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600">
-                </div>
-                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">Completado</span>
-            </label>
-        </div>
+    <!-- Formulario -->
+    <div *ngIf="!loadingTask()" class="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
+        <form class="flex flex-col gap-6" [formGroup]="form" (ngSubmit)="submit()">
+            <div class="flex flex-col">
+                <label for="titulo" class="text-[15px] text-[#2a5f6b] font-semibold mb-2">Título:</label>
+                <input
+                    class="border-[1px] border-[#6bb6c7] px-[12px] py-[12px] focus:outline-none focus:ring-2 focus:ring-[#6bb6c7]/20 focus:border-[#3a8a9c] shadow-sm font-medium text-[16px] rounded-lg transition-all duration-200"
+                    type="text" placeholder="Ingresa el título de la tarea" name="title" formControlName="title" />
+                @if (form.controls['title'].invalid && form.controls['title'].touched) {
+                <small class="text-red-500 font-medium mt-1">Este campo es requerido</small>
+                }
+            </div>
 
+            <div class="flex flex-col">
+                <label class="inline-flex items-center cursor-pointer">
+                    <input formControlName="completed" type="checkbox" value="" class="sr-only peer">
+                    <div
+                        class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#6bb6c7]/30 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:w-5 after:h-5 after:transition-all peer-checked:bg-[#3a8a9c]">
+                    </div>
+                    <span class="ms-3 text-sm font-semibold text-[#2a5f6b]">Completado</span>
+                </label>
+            </div>
 
-        <button 
-            type="submit"
-            class="bg-[#0075FF] h-[45px] w-[200px] text-white text-[20px] font-[450] font-sans rounded-lg hover:bg-[#005FCC] border-[2px] cursor-pointer transition-colors border-none mt-[1px] flex items-center justify-center"
-        >
-        Cargar tarea
-        </button>
-        
-    </form>
+            <button type="submit" [disabled]="loading()"
+                class="bg-[#3a8a9c] h-[45px] w-[200px] text-white text-[20px] font-semibold rounded-lg hover:bg-[#2a5f6b] cursor-pointer transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">
+                <span *ngIf="loading()" class="inline-block mr-2">
+                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                        </circle>
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
+                    </svg>
+                </span>
+                {{ loading() ? 'Guardando...' : 'Cargar tarea' }}
+            </button>
+        </form>
+    </div>
 </section>

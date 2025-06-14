@@ -6,12 +6,15 @@ import {
   Validators,
 } from '@angular/forms';
 import { hasEmailError, isRequired } from '../../utils/validators';
-import { AuthService } from '../../data-access/auth.service';
+import { AuthService } from '../../data-access/auth/auth.service';
 import { toast } from 'ngx-sonner';
 import { Router, RouterLink } from '@angular/router';
-import { GoogleButtonComponent } from '../../ui/google-button/google-button.component';
-import { type UserCreate, UsersService } from '../../data-access/users.service';
+import {
+  type UserCreate,
+  UsersService,
+} from '../../data-access/users/users.service';
 import { CommonModule } from '@angular/common';
+import { Timestamp } from '@angular/fire/firestore';
 
 interface FormRegister {
   username: FormControl<string | null>;
@@ -54,7 +57,10 @@ export default class RegisterComponent {
     const passwordControl = this.form.get('password');
     if (!passwordControl) return false;
 
-    return passwordControl.hasError('minlength') || passwordControl.hasError('pattern');
+    return (
+      passwordControl.hasError('minlength') ||
+      passwordControl.hasError('pattern')
+    );
   }
 
   onCheckboxChange(event: Event): void {
@@ -66,11 +72,16 @@ export default class RegisterComponent {
     {
       username: this._formBuilder.control('', Validators.required),
       name: this._formBuilder.control('', Validators.required),
-      email: this._formBuilder.control('', [Validators.required, Validators.email]),
+      email: this._formBuilder.control('', [
+        Validators.required,
+        Validators.email,
+      ]),
       password: this._formBuilder.control('', [
         Validators.required,
         Validators.minLength(8),
-        Validators.pattern(/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/),
+        Validators.pattern(
+          /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/
+        ),
       ]),
       repeatPassword: this._formBuilder.control('', Validators.required),
     },
@@ -78,7 +89,6 @@ export default class RegisterComponent {
   );
 
   async submit() {
-
     if (this.form.valid && this.isChecked()) {
       const { email, password } = this.form.value;
 
@@ -89,10 +99,13 @@ export default class RegisterComponent {
         this.loading.set(true);
 
         // 1. Registrar en Firebase Auth
-        const userCredential = await this._authService.register({
-          email,
-          password,
-        });
+        const userCredential = await this._authService.register(
+          {
+            email,
+            password,
+          },
+          { displayName: this.form.value.name || undefined }
+        );
         const uid = userCredential.user.uid;
 
         // 2. Guardar en Firestore con el email
@@ -104,6 +117,18 @@ export default class RegisterComponent {
 
         await this._usersService.createWithUID(user, uid);
 
+        const provider = {
+          providerId: 'password',
+          displayName: 'Email/Contraseña',
+          providerDisplayName: user.email,
+          linkedAt: Timestamp.now(),
+        };
+
+        await this._usersService.addProviderToUser(
+          uid,
+          provider
+        );
+
         toast.success('Usuario creado correctamente');
         this._router.navigateByUrl('/dashboard');
       } catch (error) {
@@ -111,49 +136,6 @@ export default class RegisterComponent {
       } finally {
         this.loading.set(false);
       }
-    }
-
-  }
-  async submitWithGoogle() {
-    try {
-      this.loading.set(true);
-
-      // 1. Autenticar con Google y obtener el resultado
-      const userCredential = await this._authService.loginGoogle();
-      const user = userCredential.user;
-
-      if (user && user.email) {
-        // 2. Verificar si el usuario ya existe en Firestore
-        const existingUser = await this._usersService.getUserByEmail(
-          user.email
-        );
-
-        // 3. Si no existe, crear un nuevo perfil en Firestore
-        if (!existingUser) {
-          console.log('Creando nuevo perfil para usuario de Google');
-
-          // Crear objeto de usuario con la información de Google
-          const newUser = {
-            username: user.displayName || user.email.split('@')[0], // Usar displayName o parte del email como username
-            name: user.displayName || '',
-            email: user.email,
-          };
-
-          // Guardar en Firestore usando el UID como identificador
-          await this._usersService.createWithUID(newUser, user.uid);
-          console.log('Perfil creado exitosamente');
-        } else {
-          console.log('Usuario ya existe en Firestore');
-        }
-      }
-
-      toast.success('Bienvenido');
-      this._router.navigateByUrl('/dashboard');
-    } catch (error) {
-      console.error('Error en login con Google:', error);
-      toast.error('Error al iniciar sesión');
-    } finally {
-      this.loading.set(false);
     }
   }
 }

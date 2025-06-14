@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+    import { Routes } from '@angular/router';
 import { privateGuard, publicGuard } from './components/core/auth.guard';
 
 
