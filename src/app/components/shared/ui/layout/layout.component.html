@@ -16,14 +16,22 @@
     class="bg-[#3a8a9c] shadow-xl border-r border-[#2a5f6b] flex flex-col transition-all duration-300">
 
     <div class="border-b border-[#2a5f6b] h-[90px] min-h-[90px] flex flex-col justify-center relative">
-      <div [class]="sidebarCollapsed ? 'text-center te' : 'pl-3'">
-        <h1 [class]="sidebarCollapsed ? 'text-[28px]' : 'text-2xl'"
-          class="font-bold text-white transition-all duration-300">
-          {{ sidebarCollapsed ? 'M' : 'Mentorium' }}
-        </h1>
-        <p *ngIf="!sidebarCollapsed" class="text-sm text-[#9dd4e0] mt-1 transition-opacity duration-300">
-          Panel de Control
-        </p>
+      <div [class]="sidebarCollapsed ? 'flex justify-center items-center' : 'flex items-center'">
+        <img *ngIf="!sidebarCollapsed" src="logo.png" alt="Mentorium Logo"
+          class="size-9 inline-block align-middle ml-2" />
+        <div [class]="sidebarCollapsed ? 'text-center te' : 'pl-3'">
+          <h1 [class]="sidebarCollapsed ? 'text-[28px]' : 'text-2xl'"
+            class="font-bold text-white transition-all duration-300">
+            <span>
+              <img *ngIf="sidebarCollapsed" src="logo.png" alt="Mentorium Logo"
+                class="h-9 inline-block align-middle mr-0.5" />
+              <span *ngIf="!sidebarCollapsed">Mentorium</span>
+            </span>
+          </h1>
+          <p *ngIf="!sidebarCollapsed" class="text-sm text-[#9dd4e0] mt-1 transition-opacity duration-300">
+            Panel de Control
+          </p>
+        </div>
       </div>
 
       <button (click)="toggleSidebar()"
